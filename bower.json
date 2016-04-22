@@ -1,0 +1,10 @@
+{
+    "name": "ullo-client-start",
+    "description": "Ullo client web app for dish ratings",
+    "version": "0.0.1",
+    "homepage": "http://ulloclient.wslabs.it",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+    }
+}
