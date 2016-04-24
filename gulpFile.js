@@ -8,7 +8,6 @@
 var gulp = require('gulp'),
     fs = require('fs'),
     promise = require('es6-promise'),
-    del = require('del'),
     rewrite = require('connect-modrewrite'),
     webserver = require('gulp-webserver'),
     rename = require('gulp-rename'),
@@ -18,8 +17,6 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     watch = require('gulp-watch'),
     sourcemaps = require('gulp-sourcemaps'),
-    jade = require('gulp-jade'),
-    typescript = require('gulp-typescript'),
     less = require('gulp-less'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
@@ -77,68 +74,6 @@ var excludes = {
     css: "/**/*.min.css",
     js: "/**/*.min.js"
 };
-
-
-/************
- *** JADE ***
- ************/
-gulp.task('jade:compile', function() {
-    var options = {
-        locals: {},
-        pretty: true,
-    };
-    return gulp.src([
-        paths.src + matches.jade,
-        '!' + paths.node + excludes.everything,
-        '!' + paths.bower + excludes.everything,
-    ], { base: paths.src })
-        .pipe(plumber(function(error) {
-            console.log('jade:compile.plumber', error);
-        }))
-        .pipe(jade(options))
-        .pipe(gulp.dest(paths.root));
-});
-gulp.task('jade:watch', function() {
-    var watcher = gulp.watch(paths.src + matches.jade, ['jade:compile']);
-    watcher.on('change', function(e) {
-        console.log('watcher.on.change type: ' + e.type + ' path: ' + e.path);
-    });
-    return watcher;
-});
-gulp.task('jade', ['jade:compile', 'jade:watch']);
-
-
-/******************
- *** TYPESCRIPT ***
- ******************/
-var project = typescript.createProject('tsconfig.json', {
-    typescript: require('typescript')
-});
-gulp.task('typescript:compile', function() {
-    var result = project.src()
-        .pipe(plumber(function (error) {
-            console.log('typescript:compile.plumber', error);
-        }))
-        .pipe(sourcemaps.init())
-        .pipe(typescript(project));
-    return result.js
-        .pipe(plumber(function (error) {
-            console.log('typescript:compile.plumber', error);
-        }))
-        .pipe(gulp.dest(paths.root)) // save .js
-        .pipe(uglify({ preserveComments: 'license' }))
-        .pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest(paths.root)) // save .min.js
-        .pipe(sourcemaps.write('.')); // save .map
-});
-gulp.task('typescript:watch', function() {
-    var watcher = gulp.watch(paths.src + matches.typescript, ['typescript:compile']);
-    watcher.on('change', function(e) {
-        console.log('watcher.on.change type: ' + e.type + ' path: ' + e.path);
-    });
-    return watcher;
-});
-gulp.task('typescript', ['typescript:compile', 'typescript:watch']);
 
 
 /************
@@ -344,7 +279,6 @@ gulp.task('serve', ['compile'], function() {
                 '!\\.html|\\.js|\\.css|\\.map|\\.svg|\\.jp(e?)g|\\.png|\\.gif$ /index.html'
             ]),
             function(request, response, next) {
-                // console.log('request.url', request.url);
                 if (request.url !== '/hello') return next();
                 response.end('<h1>Hello, world from ' + options.host + ':' + options.port + '!</h1>');
             },
@@ -363,7 +297,7 @@ gulp.task('serve', ['compile'], function() {
 /*************
  *** WATCH ***
  *************/
-gulp.task('watch', ['less:watch', 'sass:watch', 'typescript:watch', 'css:watch', 'js:watch', 'jade:watch'], function(done) { done(); });
+gulp.task('watch', ['less:watch', 'sass:watch', 'css:watch', 'js:watch'], function(done) { done(); });
 
 
 /*************

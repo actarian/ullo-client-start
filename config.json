@@ -11,30 +11,12 @@
         "js": "/js"
     },
     "bundles": {
-        "css": [{
-            "src": [
-                "./wwwroot/css/bootstrap-4/bootstrap.css",
-                "./node_modules/animate.css/animate.css"
-            ],
-            "dist": "./wwwroot/css/vendors.css"
-        }, {
-            "src": [
-                "./wwwroot/css/app.css"
-            ],
-			"lints": true
-        }],
+        "css": [],
         "js": [{
             "src": [
-                "./node_modules/dynamics.js/lib/dynamics.js",
-                "./node_modules/angular/angular.js",
-                "./node_modules/angular-route/angular-route.js",
-                "./node_modules/angular-messages/angular-messages.js",
-                "./node_modules/angular-animate/angular-animate.js",
-                "./node_modules/angular-relative-date/dist/angular-relative-date.js",
-                "./node_modules/ng-file-upload/dist/ng-file-upload.js"
+                "./node_modules/angular/angular.js"
             ],
-            "folder": "./wwwroot/js/vendors",
-            "dist": "./wwwroot/js/vendors.js"
+            "folder": "./wwwroot/js/vendors"
         }, {
             "src": [
                 "./src/js/app.js",
