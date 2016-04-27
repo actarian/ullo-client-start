@@ -49,7 +49,7 @@
                             <div class="right">                                                          
                                 <i class="icon-vegan-friendly" ng-if="item.dish.isVeganFriendly" title="is vegan friendly"></i>
                                 <button type="button" ng-click="item.dish.like(true)" ng-class="{ active: item.dish.vote.like === true }" on-tap class="btn btn-vote btn-upvote" title="vote up"><i class="icon-upvote"></i><span ng-bind="item.dish.yes"></span></button>
-                                <button type="button" ng-click="item.dish.like(false)" ng-class="{ active: item.dish.vote.like === false }"  on-tap class="btn btn-vote btn-downvote" title="vote down"><span ng-bind="item.dish.no"></span><i class="icon-downvote"></i></button>                         
+                                <button type="button" ng-click="item.dish.like(false)" ng-class="{ active: item.dish.vote.like === false }"  on-tap class="btn btn-vote btn-downvote" title="vote down"><span ng-bind="item.dish.no"></span><i class="icon-downvote"></i></button>
                             </div>
                         </div>
                     </div>

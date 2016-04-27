@@ -6,6 +6,6 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
-        "angular" : "*"
+        "angular" : "1.5.3"
     }
 }
