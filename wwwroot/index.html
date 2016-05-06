@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" class="desktop">
+<html xmlns="http://www.w3.org/1999/xhtml" class="desktop" ng-app="ullo">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="screen">
-        <div class="page navigation">
+        <div class="page navigation" ng-controller="TestCtrl" ng-include="'templates/test.html'">
 			<div class="inner splash">
 				<section class="vertical brand">
 					<div class="inner">

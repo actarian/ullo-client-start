@@ -52,7 +52,7 @@
 	"lints": {
 		"js": false,
 		"css": false,
-		"scss": true
+		"scss": false
 	},
     "server": {
         "name": "dev.ullowebapp",
