@@ -14,14 +14,14 @@ var CONFIG = {
 
 var app = angular.module('ullo', []);
 
-app.controller('TestCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
+app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
 
     $scope.model = {
-        title: 'Titolo',
+        label: 'Carica',
     };
     
     $timeout(function() {
-        $scope.model.title = 'Titolone';
+        $scope.model.label = 'Carica Stream';
     }, 1000);
 
     $scope.item = {
@@ -62,6 +62,14 @@ app.controller('TestCtrl', ['$scope', '$timeout', function ($scope, $timeout) {
             key: '8Fe997434Ed346DeBa132C1bd7a45ffe'
         },
         created: '2016-04-27T19:13:45.497'
+    };
+    
+    $scope.loadStream = function() {
+        $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(success){
+            $scope.items = success.data;
+        }, function(error) {
+            console.log('error', error);
+        });
     };
 
 }]);

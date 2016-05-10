@@ -21,13 +21,13 @@
                 <div class="card-content">
                     <div class="card-headline h5">
                         <div class="left">
-                            <b class="text-strong" ng-bind="model.title"></b>
+                            <b class="text-strong" ng-bind="model.label" ng-click="loadStream()"></b>
                         </div>
                     </div>
                 </div>
             </div>
             <div>
-                <div class="card">
+                <div class="card" ng-repeat="item in items">
                     <div class="card-media aspect ratio2x1" ng-click="goDish(item.dish.id)">
                         <img src="http://lorempixel.com/375/187/food/" class="inner loaded" />
                     </div>
