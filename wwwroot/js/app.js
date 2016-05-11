@@ -1,17 +1,5 @@
 /*global angular,FB */
 
-var LESSON = true;
-var CONFIG = {
-    CLIENT: window.location.href.indexOf('http://ulloclient.wslabs.it') === 0 ? 'http://ulloclient.wslabs.it' : 'http://dev.ullowebapp:8081',
-    API: (LESSON || window.location.href.indexOf('http://ulloclient.wslabs.it') === 0) ? 'http://ulloapi.wslabs.it' : 'https://localhost:44302',
-    FACEBOOK_APP_ID: window.location.href.indexOf('http://ulloclient.wslabs.it') === 0 ? '1054303094614120' : '1062564893787940',
-    assetTypeEnum: {
-        Unknown: 0,
-        Picture: 1,
-    },
-    IOS: (navigator.userAgent.match(/iPad|iPhone|iPod/g) ? true : false),
-};
-
 var app = angular.module('ullo', []);
 
 app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
@@ -79,7 +67,234 @@ app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $ti
 
 /*global angular,FB */
 
+var LESSON = true;
+var CONFIG = {
+    CLIENT: window.location.href.indexOf('http://ulloclient.wslabs.it') === 0 ? 'http://ulloclient.wslabs.it' : 'http://dev.ullowebapp:8081',
+    API: (LESSON || window.location.href.indexOf('http://ulloclient.wslabs.it') === 0) ? 'http://ulloapi.wslabs.it' : 'https://localhost:44302',
+    FACEBOOK_APP_ID: window.location.href.indexOf('http://ulloclient.wslabs.it') === 0 ? '1054303094614120' : '1062564893787940',
+    assetTypeEnum: {
+        Unknown: 0,
+        Picture: 1,
+    },
+    IOS: (navigator.userAgent.match(/iPad|iPhone|iPod/g) ? true : false),
+};
+
+app.constant('APP', CONFIG);
+
+app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+
+	// SECURE ROUTING
+    $routeProvider.when('/stream', {
+        title: 'Stream',
+        templateUrl: 'templates/stream.html',
+        controller: 'StreamCtrl',
+        controllerAs: 'streamCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+
+    }).when('/dishes/:dishId', {
+        title: 'Dish',
+        templateUrl: 'templates/dish.html',
+        controller: 'DishCtrl',
+        controllerAs: 'dishCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+        isForward: true,
+
+    }).when('/categories/:categoryId', {
+        title: 'Category',
+        templateUrl: 'templates/category.html',
+        controller: 'CategoryCtrl',
+        controllerAs: 'categoryCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+        isForward: true,
+
+    }).when('/users/:userRoute', {
+        title: 'User',
+        templateUrl: 'templates/user.html',
+        controller: 'UserCtrl',
+        controllerAs: 'userCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+        isForward: true,
+
+    }).when('/post', {
+        title: 'Add Post',
+        templateUrl: 'templates/post.html',
+        controller: 'PostCtrl',
+        controllerAs: 'postCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+        isForward: true,
+
+    }).when('/settings', {
+        title: 'Settings',
+        templateUrl: 'templates/settings.html',
+        controller: 'SettingsCtrl',
+        controllerAs: 'settingsCtrl',
+        resolve: {
+            user: ['Users', function(Users){
+                return Users.isLoggedOrGoTo('/splash');
+            }]
+        },
+        isForward: true,
+
+	// UNSECURE ROUTING
+    }).when('/splash', {
+        title: 'Splash',
+        templateUrl: 'templates/splash.html',
+        controller: 'SplashCtrl',
+        controllerAs: 'splashCtrl',
+
+    }).when('/signin', {
+        title: 'Sign In',
+        templateUrl: 'templates/signin.html',
+        controller: 'SigninCtrl',
+        controllerAs: 'signinCtrl',
+
+    }).when('/signup', {
+        title: 'Sign Up',
+        templateUrl: 'templates/signup.html',
+        controller: 'SignupCtrl',
+        controllerAs: 'signupCtrl',
+
+    }).when('/test', {
+        title: 'Test',
+        templateUrl: 'templates/dishes.html',
+        controller: 'TestCtrl',
+        controllerAs: 'testCtrl',
+
+    }).when('/404', {
+
+        title: 'Error 404',
+        templateUrl: '404.html',
+
+    });
+
+    $routeProvider.otherwise('/stream');
+
+    // HTML5 MODE url writing method (false: #/anchor/use, true: /html5/url/use)
+    $locationProvider.html5Mode(true);
+
+}]);
+
+app.config(['$httpProvider', function ($httpProvider) {
+    
+    $httpProvider.defaults.withCredentials = true;
+    
+}]);
+
+/*global angular,FB */
+
 /*global angular,FB,dynamics*/
+
+
+app.filter('customCurrency', ['$filter', function ($filter) {
+    var legacyFilter = $filter('currency');
+    return function (cost, currency) {
+        return legacyFilter(cost * currency.ratio, currency.formatting);
+    }
+}]);
+
+app.filter('customSize', ['APP', function (APP) {
+    return function (inches) {
+        if (APP.unit === APP.units.IMPERIAL) {
+            var feet = Math.floor(inches / 12);
+            inches = inches % 12;
+            inches = Math.round(inches * 10) / 10;
+            return (feet ? feet + '\' ' : '') + (inches + '\'\'');
+        } else {
+            var meters = Math.floor(inches * APP.size.ratio);
+            var cm = (inches * APP.size.ratio * 100) % 100;
+            cm = Math.round(cm * 10) / 10;
+            return (meters ? meters + 'm ' : '') + (cm + 'cm');
+        }
+    };
+}]);
+
+app.filter('customWeight', ['APP', function (APP) {
+    return function (pounds) {
+        if (APP.unit === APP.units.IMPERIAL) {
+            if (pounds < 1) {
+                var oz = pounds * 16;
+                oz = Math.round(oz * 10) / 10;
+                return (oz ? oz + 'oz ' : '');
+            } else {
+                pounds = Math.round(pounds * 100) / 100;
+                return (pounds ? pounds + 'lb ' : '');
+            }
+        } else {
+            var kg = Math.floor(pounds * APP.weight.ratio / 1000);
+            var grams = (pounds * APP.weight.ratio) % 1000;
+            grams = Math.round(grams * 10) / 10;
+            return (kg ? kg + 'kg ' : '') + (grams + 'g');
+        }
+    };
+}]);
+
+app.filter('customNumber', ['$filter', function ($filter) {
+    var filter = $filter('number');
+    return function (value, precision, unit) {
+        unit = unit || '';
+        return (value ? filter(value, precision) + unit : '-');
+    }
+}]);
+
+app.filter('customDate', ['$filter', function ($filter) {
+    var filter = $filter('date');
+    return function (value, format, timezone) {
+        return value ? filter(value, format, timezone) : '-';
+    }
+}]);
+
+app.filter('customTime', ['$filter', function ($filter) {
+    return function (value, placeholder) {
+        if (value) {
+            return Utils.parseTime(value);
+        } else {
+            return (placeholder ? placeholder : '-');
+        }
+    }
+}]);
+
+app.filter('customDigital', ['$filter', function ($filter) {
+    return function (value, placeholder) {
+        if (value) {
+            return Utils.parseHour(value);
+        } else {
+            return (placeholder ? placeholder : '-');
+        }
+    }
+}]);
+
+app.filter('customString', ['$filter', function ($filter) {
+    return function (value, placeholder) {
+        return value ? value : (placeholder ? placeholder : '-');
+    }
+}]);
+
+app.filter('customEnum', function () {
+    return function (val) {
+        val = val + 1;
+        return val < 10 ? '0' + val : val;
+    };
+});
 
 /*global angular,FB */
 

@@ -21,8 +21,10 @@
             "src": [
                 "./src/js/app.js",
                 "./src/js/animations/animations.js",
+                "./src/js/config/config.js",
                 "./src/js/controllers/controllers.js",
 				"./src/js/directives/directives.js",
+				"./src/js/filters/filters.js",
                 "./src/js/models/models.js",
                 "./src/js/providers/providers.js",
                 "./src/js/services/services.js",
