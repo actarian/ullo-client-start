@@ -281,10 +281,6 @@ gulp.task('serve', ['compile'], function() {
             rewrite([
                 '!\\.html|\\.js|\\.css|\\.map|\\.svg|\\.jp(e?)g|\\.png|\\.gif$ /index.html'
             ]),
-            function(request, response, next) {
-                if (request.url !== '/hello') return next();
-                response.end('<h1>Hello, world from ' + options.host + ':' + options.port + '!</h1>');
-            },
         ],
         livereload: {
             enable: true, // need this set to true to enable livereload

@@ -1,7 +1,72 @@
 /*global angular,FB */
 
-var app = angular.module('ullo', []);
+var app = angular.module('ullo', ['ngRoute']);
 
+
+app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+
+	$routeProvider.when('/', {                
+        controller: 'TestCtrl',
+        templateUrl: 'templates/temp.html',
+        title: 'HomePage',
+        
+    }).when('/stream', {        
+        controller: 'TestCtrl',
+        templateUrl: 'templates/test.html',
+        title: 'TestCtrl',
+        
+    }).when('/dishes/:dishId', {        
+        controller: 'TestCtrl',
+        templateUrl: 'templates/test.html',
+        title: 'Dishes',
+        
+    }).when('/signin', {                
+        controller: 'SignInCtrl',
+        templateUrl: 'templates/signin-test.html',
+        title: 'Sign In',
+        
+    }).when('/404', {
+        controller: 'TestCtrl',
+        templateUrl: 'templates/test.html',
+        title: 'Errore 404',
+        
+    });
+    
+    $routeProvider.otherwise('/404');
+    
+    // HTML5 MODE url writing method (false: #/anchor/use, true: /html5/url/use)
+    $locationProvider.html5Mode(true);
+    
+}]);
+
+app.controller('SignInCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
+
+    $scope.model = {};
+    
+    $scope.signin = function () {
+        
+        $scope.busy = true;
+        
+        $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
+            console.log('signin', success);
+                  
+        }, function(error) {
+            console.log('error', error);
+            
+        }).finally(function() {
+            
+            $timeout(function() {
+                
+                $scope.busy = false;
+            
+            }, 3000);
+            
+        });
+        
+    };
+    
+}]);
+    
 app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
 
     $scope.model = {

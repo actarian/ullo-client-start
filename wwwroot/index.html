@@ -18,6 +18,18 @@
         <ng-view class="page navigation">loading...</ng-view>
     </div>
     <!-- templates -->
+    <script type="text/ng-template" id="templates/signin-test.html">
+    
+        <form name="signinForm" novalidate ng-submit="signinForm.$valid && signin()">
+            
+            <input type="email" placeholder="username" required class="form-control" ng-model="model.username" />
+            <input type="password" placeholder="password" required class="form-control" ng-model="model.password" />
+            
+            <button type="submit" class="btn btn-cta" ng-hide="busy">Sign In</button>
+            
+        </form>
+    
+    </script>
     <script type="text/ng-template" id="templates/temp.html">
         
 			<div class="inner"><!-- splash -->
