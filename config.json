@@ -14,7 +14,8 @@
         "css": [],
         "js": [{
             "src": [
-                "./bower_components/angular/angular.js"
+                "./bower_components/angular/angular.js",
+                "./bower_components/angular-route/angular-route.js"
             ],
             "folder": "./wwwroot/js/vendors"
         }, {

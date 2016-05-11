@@ -7,8 +7,8 @@ app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $ti
     $scope.model = {
         label: 'Carica',
     };
-    
-    $timeout(function() {
+        
+    setTimeout(function() {
         $scope.model.label = 'Carica Stream';
     }, 1000);
 
@@ -53,8 +53,8 @@ app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $ti
     };
     
     $scope.loadStream = function() {
-        $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(success){
-            $scope.items = success.data;
+        $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
+            $scope.items = response.data;
         }, function(error) {
             console.log('error', error);
         });

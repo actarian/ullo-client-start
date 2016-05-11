@@ -14,8 +14,12 @@
     <link href="css/app.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="screen">
-        <div class="page navigation" ng-controller="TestCtrl">
+    <div class="screen" ng-cloak>
+        <ng-view class="page navigation">loading...</ng-view>
+    </div>
+    <!-- templates -->
+    <script type="text/ng-template" id="templates/temp.html">
+        
 			<div class="inner"><!-- splash -->
 				<section class="vertical brand">
 					<div class="inner">
@@ -33,17 +37,17 @@
                             <div class="card-content">
                                 <div class="card-headline h5">
                                     <div class="left">
-                                        <img src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
+                                        <img ng-src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
                                         <br><b class="text-strong" ng-bind="item.dish.name"></b>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card" ng-repeat="item in items">
+                        <div class="card" ng-repeat="oggetto in items track by $index">
                             <div class="card-content">
                                 <div class="card-headline h5">
                                     <div class="left">
-                                        <img src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
+                                        <img ng-src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
                                         <br><b class="text-strong" ng-bind="item.dish.name"></b>
                                     </div>
                                 </div>
@@ -52,14 +56,10 @@
 					</div>
 				</section>
 			</div>
-		</div>
-    </div>
-    <!-- templates -->
-    <script type="text/ng-template" id="temp.html">
-        <p>This is the content of the template</p>
     </script>
 	<!-- js -->
 	<script src="js/vendors/angular.js"></script>
+    <script src="js/vendors/angular-route.js"></script>
     <script src="js/app/app.js"></script>
 	<!--
     <script src="js/vendors.min.js"></script>
