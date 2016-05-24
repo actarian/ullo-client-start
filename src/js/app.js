@@ -2,13 +2,17 @@
 
 var app = angular.module('ullo', ['ngRoute']);
 
-
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
 	$routeProvider.when('/', {                
-        controller: 'TestCtrl',
-        templateUrl: 'templates/temp.html',
-        title: 'HomePage',
+        controller: 'SignInCtrl',
+        templateUrl: 'templates/signin-test.html',
+        title: 'Sign In',
+        
+    }).when('/signin', {                
+        controller: 'SignInCtrl',
+        templateUrl: 'templates/signin-test.html',
+        title: 'Sign In',
         
     }).when('/stream', {        
         controller: 'TestCtrl',
@@ -20,10 +24,10 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
         templateUrl: 'templates/test.html',
         title: 'Dishes',
         
-    }).when('/signin', {                
-        controller: 'SignInCtrl',
-        templateUrl: 'templates/signin-test.html',
-        title: 'Sign In',
+    }).when('/test', {                
+        controller: 'TestCtrl',
+        templateUrl: 'templates/temp.html',
+        title: 'HomePage',
         
     }).when('/404', {
         controller: 'TestCtrl',
@@ -39,30 +43,26 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     
 }]);
 
-app.controller('SignInCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
+app.controller('SignInCtrl', ['$scope', '$timeout', '$http', '$location', function ($scope, $timeout, $http, $location) {
 
     $scope.model = {};
-    
+
     $scope.signin = function () {
-        
-        $scope.busy = true;
-        
-        $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
-            console.log('signin', success);
-                  
-        }, function(error) {
-            console.log('error', error);
-            
-        }).finally(function() {
-            
-            $timeout(function() {
-                
-                $scope.busy = false;
-            
-            }, 3000);
-            
-        });
-        
+        $scope.signinFormError = null;
+        $scope.signinFormBusy = true;
+        $timeout(function() {
+            $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
+                console.log('signin', success);
+                $location.path('/stream');
+            }, function(error) {
+                console.log('error', error);
+                $scope.signinFormError = { message: error.message };
+            }).finally(function() {
+                $timeout(function() {
+                    $scope.signinFormBusy = false;
+                }, 3000);
+            });
+        }, 1000);
     };
     
 }]);
