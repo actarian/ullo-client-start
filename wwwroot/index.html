@@ -11,6 +11,7 @@
     <link rel="shortcut icon" href="/img/icons/favicon.ico">
 	<!-- css -->
     <link href="css/bootstrap-3/bootstrap.min.css" rel="stylesheet">
+    <link href="css/vendors/animate.css" rel="stylesheet">
     <link href="css/app.min.css" rel="stylesheet">
 </head>
 <body>
@@ -39,9 +40,13 @@
                     <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
                         <div class="container-fluid">                    
                             <div class="row" animate="fadeInUp" delay="300">
+                                
+                                <div class="form-group col-xs-6" control="text" form="signinForm" model="testo" required="true" title="Input1"></div>
+                                <div class="form-group col-xs-6" control="select" form="signinForm" model="sdsdsdds" required="true" title="Input2" source="input2Options" name="title"></div>
+                                
                                 <div class="form-group col-xs-12">
                                     <label for="Username">Username <span class="text-danger" ng-if="signinForm.Username.$error.required">required</span></label>
-                                    <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required />
+                                    <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required="true" />
                                     
                                 </div>
                                 <div class="form-group col-xs-12" form="signinForm" control="password" title="Password" placeholder="type your password" model="model.password" required="true">
@@ -54,7 +59,7 @@
                                 <br>
                                 <br>
                                 <p class="bg-danger" style="padding:10px;" ng-if="signinFormError" ng-bind="signinFormError.message || 'error'"></p>
-                                <button type="submit" ng-class="{ busy: signinFormBusy }" ng-disabled="signinForm.$invalid" class="btn btn-primary btn-block">
+                                <button type="submit" ng-class="{ busy: signinFormBusy, shake: clicked }" ng-disabled="signinForm.$invalid" class="btn btn-primary btn-block animated" on-tap>
                                     <span ng-if="!signinFormBusy">SIGN IN</span><span ng-if="signinFormBusy">SIGNING IN</span>
                                 </button>
                                 <div class="divline"><span>OR</span></div>
@@ -107,10 +112,15 @@
 			</div>
     </script>
 	<!-- js -->
-	<script src="js/vendors/angular.js"></script>
+	<script src="js/vendors/dynamics.js"></script>
+    <script src="js/vendors/angular.js"></script>
     <script src="js/vendors/angular-route.js"></script>
+    <script src="js/vendors/angular-animate.js"></script>
     <script src="js/app/app.js"></script>
-	<!--
+	<script src="js/app/animations.js"></script>
+	<script src="js/app/directives.js"></script>
+	<script src="js/app/services.js"></script>
+    <!--
     <script src="js/vendors.min.js"></script>
     <script src="js/app.min.js"></script>
 	-->

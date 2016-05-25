@@ -11,11 +11,18 @@
         "js": "/js"
     },
     "bundles": {
-        "css": [],
+        "css": [{
+            "src": [
+                "./bower_components/animate.css/animate.css"                
+            ],
+            "folder": "./wwwroot/css/vendors"
+        }],
         "js": [{
             "src": [
                 "./bower_components/angular/angular.js",
-                "./bower_components/angular-route/angular-route.js"
+                "./bower_components/angular-route/angular-route.js",
+                "./bower_components/angular-animate/angular-animate.js",
+                "./bower_components/dynamics.js/lib/dynamics.js"
             ],
             "folder": "./wwwroot/js/vendors"
         }, {

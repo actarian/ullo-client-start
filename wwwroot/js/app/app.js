@@ -1,13 +1,13 @@
 /*global angular,FB */
 
-var app = angular.module('ullo', ['ngRoute']);
+var app = angular.module('ullo', ['ngRoute', 'ngAnimate']);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
 	$routeProvider.when('/', {                
         controller: 'SignInCtrl',
         templateUrl: 'templates/signin-test.html',
-        title: 'Sign In',
+        title: 'Sign In',        
         
     }).when('/signin', {                
         controller: 'SignInCtrl',
@@ -18,6 +18,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
         controller: 'TestCtrl',
         templateUrl: 'templates/test.html',
         title: 'TestCtrl',
+        isForward: true
         
     }).when('/dishes/:dishId', {        
         controller: 'TestCtrl',
@@ -33,6 +34,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
         controller: 'TestCtrl',
         templateUrl: 'templates/test.html',
         title: 'Errore 404',
+        isForward: true
         
     });
     
@@ -47,9 +49,24 @@ app.controller('SignInCtrl', ['$scope', '$timeout', '$http', '$location', functi
 
     $scope.model = {};
 
+    $scope.input2Options = [{
+        name: 'Option1',
+        id:1   
+    }, {
+        name: 'Option2',
+        id:2   
+    }]
+
+$http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
+            $scope.input2Options = response.data;
+        }, function(error) {
+            console.log('error', error);
+        });
+
     $scope.signin = function () {
         $scope.signinFormError = null;
         $scope.signinFormBusy = true;
+        $scope.clicked = true;
         $timeout(function() {
             $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
                 console.log('signin', success);
@@ -62,6 +79,7 @@ app.controller('SignInCtrl', ['$scope', '$timeout', '$http', '$location', functi
                     $scope.signinFormBusy = false;
                 }, 3000);
             });
+            $scope.clicked = false;
         }, 1000);
     };
     

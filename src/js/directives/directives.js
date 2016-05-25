@@ -26,9 +26,9 @@
 */
 app.directive('onTap', ['$timeout', function($timeout) {
    return {
-      restrict: 'A',
-      link: function(scope, element, attributes, model) {
+      link: function(scope, element, attributes, model) {            
          function onTap(e) {
+            console.log(attributes);
             element.addClass('tapped');
             $timeout(function() {
                element.removeClass('tapped');
