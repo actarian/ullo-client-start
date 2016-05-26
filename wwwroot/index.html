@@ -36,21 +36,21 @@
             </section>
             <section class="scrollable content">
                 <div class="inner">
-                    <div ng-bind="model | json"></div>
                     <br>    
                     <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
+                        <div ng-bind="model | json"></div>
+                        <div ng-bind="signinForm.Input1.$error | json"></div>
                         <div class="container-fluid">                    
                             <div class="row" animate="fadeInUp" delay="300">
                                 
-                                <div class="form-group col-xs-6" control="text" form="signinForm" model="model.input1" required="true" title="Input1"></div>
-                                <div class="form-group col-xs-6" control="select" form="signinForm" model="model.input2" required="true" title="Input2" source="input2Options" label="dish.name" key="dish.id" number="true"></div>
+                                <div class="form-group col-xs-6" form="signinForm" control="text" model="model.input1" title="Input1" required="true" placeholder="type your input"></div>
+                                <div class="form-group col-xs-6" form="signinForm" control="select" model="model.input2" title="Input2" required="true" source="input2Options" label="dish.name" key="dish.id" number="true"></div>
                                 
                                 <div class="form-group col-xs-12">
                                     <label for="Username">Username <span class="text-danger" ng-if="signinForm.Username.$error.required">required</span></label>
-                                    <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required="true" />
-                                    
+                                    <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required="true" />                                    
                                 </div>
-                                <div class="form-group col-xs-12" form="signinForm" control="password" title="Password" placeholder="type your password" model="model.password" required="true">
+                                <div class="form-group col-xs-12">
                                     <label for="Password">Password <span class="text-danger" ng-if="signinForm.Password.$error.required">required</span></label>
                                     <input name="Password" type="password" placeholder="password" required class="form-control" ng-model="model.password" />
                                     
@@ -117,6 +117,7 @@
     <script src="js/vendors/angular.js"></script>
     <script src="js/vendors/angular-route.js"></script>
     <script src="js/vendors/angular-animate.js"></script>
+    <script src="js/vendors/angular-messages.js"></script>
     <script src="js/app/app.js"></script>
 	<script src="js/app/animations.js"></script>
 	<script src="js/app/directives.js"></script>

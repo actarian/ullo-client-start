@@ -1,6 +1,6 @@
 /*global angular,FB */
 
-var app = angular.module('ullo', ['ngRoute', 'ngAnimate']);
+var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages']);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
@@ -56,12 +56,12 @@ app.controller('SignInCtrl', ['$scope', '$timeout', '$http', '$location', functi
         name: 'Option2',
         id:2   
     }]
-
-$http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
-            $scope.input2Options = response.data;
-        }, function(error) {
-            console.log('error', error);
-        });
+    
+    $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
+        $scope.input2Options = response.data;
+    }, function(error) {
+        console.log('error', error);
+    });
 
     $scope.signin = function () {
         $scope.signinFormError = null;
