@@ -36,13 +36,14 @@
             </section>
             <section class="scrollable content">
                 <div class="inner">
+                    <div ng-bind="model | json"></div>
                     <br>    
                     <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
                         <div class="container-fluid">                    
                             <div class="row" animate="fadeInUp" delay="300">
                                 
-                                <div class="form-group col-xs-6" control="text" form="signinForm" model="testo" required="true" title="Input1"></div>
-                                <div class="form-group col-xs-6" control="select" form="signinForm" model="sdsdsdds" required="true" title="Input2" source="input2Options" name="title"></div>
+                                <div class="form-group col-xs-6" control="text" form="signinForm" model="model.input1" required="true" title="Input1"></div>
+                                <div class="form-group col-xs-6" control="select" form="signinForm" model="model.input2" required="true" title="Input2" source="input2Options" label="dish.name" key="dish.id" number="true"></div>
                                 
                                 <div class="form-group col-xs-12">
                                     <label for="Username">Username <span class="text-danger" ng-if="signinForm.Username.$error.required">required</span></label>
