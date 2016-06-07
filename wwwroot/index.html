@@ -34,41 +34,39 @@
                     &nbsp;             
                 </div>
             </section>
-            <section class="scrollable content">
-                <div class="inner">
-                    <br>    
-                    <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
-                        <div ng-bind="model | json"></div>
-                        <div ng-bind="signinForm.Input1.$error | json"></div>
-                        <div class="container-fluid">                    
-                            <div class="row" animate="fadeInUp" delay="300">
-                                
-                                <div class="form-group col-xs-6" form="signinForm" control="text" model="model.input1" title="Input1" required="true" placeholder="type your input"></div>
-                                <div class="form-group col-xs-6" form="signinForm" control="select" model="model.input2" title="Input2" required="true" source="input2Options" label="dish.name" key="dish.id" number="true"></div>
-                                
-                                <div class="form-group col-xs-12">
-                                    <label for="Username">Username <span class="text-danger" ng-if="signinForm.Username.$error.required">required</span></label>
-                                    <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required="true" />                                    
-                                </div>
-                                <div class="form-group col-xs-12">
-                                    <label for="Password">Password <span class="text-danger" ng-if="signinForm.Password.$error.required">required</span></label>
-                                    <input name="Password" type="password" placeholder="password" required class="form-control" ng-model="model.password" />
-                                    
-                                </div>
+            <section class="content" scrollable>
+                <br>    
+                <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
+                    <div ng-bind="model | json"></div>
+                    <div ng-bind="signinForm.Input1.$error | json"></div>
+                    <div class="container-fluid">                    
+                        <div class="row" animate="fadeInUp" delay="300">
+                            
+                            <div class="form-group col-xs-6" form="signinForm" control="text" model="model.input1" title="Input1" required="true" placeholder="type your input"></div>
+                            <div class="form-group col-xs-6" form="signinForm" control="select" model="model.input2" title="Input2" required="true" source="input2Options" label="dish.name" key="dish.id" number="true"></div>
+                            
+                            <div class="form-group col-xs-12">
+                                <label for="Username">Username <span class="text-danger" ng-if="signinForm.Username.$error.required">required</span></label>
+                                <input name="Username" type="text" placeholder="username" class="form-control" ng-model="model.username" required="true" />                                    
                             </div>
-                            <div animate="fadeInUp" delay="600">
-                                <br>
-                                <br>
-                                <p class="bg-danger" style="padding:10px;" ng-if="signinFormError" ng-bind="signinFormError.message || 'error'"></p>
-                                <button type="submit" ng-class="{ busy: signinFormBusy, shake: clicked }" ng-disabled="signinForm.$invalid" class="btn btn-primary btn-block animated" on-tap>
-                                    <span ng-if="!signinFormBusy">SIGN IN</span><span ng-if="signinFormBusy">SIGNING IN</span>
-                                </button>
-                                <div class="divline"><span>OR</span></div>
-                                <a ng-href="/signup" class="btn btn-default btn-sm btn-block">SIGN UP</a>
+                            <div class="form-group col-xs-12">
+                                <label for="Password">Password <span class="text-danger" ng-if="signinForm.Password.$error.required">required</span></label>
+                                <input name="Password" type="password" placeholder="password" required class="form-control" ng-model="model.password" />
+                                
                             </div>
                         </div>
-                    </form>
-                </div>
+                        <div animate="fadeInUp" delay="600">
+                            <br>
+                            <br>
+                            <p class="bg-danger" style="padding:10px;" ng-if="signinFormError" ng-bind="signinFormError.message || 'error'"></p>
+                            <button type="submit" ng-class="{ busy: signinFormBusy, shake: clicked }" ng-disabled="signinForm.$invalid" class="btn btn-primary btn-block animated" on-tap>
+                                <span ng-if="!signinFormBusy">SIGN IN</span><span ng-if="signinFormBusy">SIGNING IN</span>
+                            </button>
+                            <div class="divline"><span>OR</span></div>
+                            <a ng-href="/signup" class="btn btn-default btn-sm btn-block">SIGN UP</a>
+                        </div>
+                    </div>
+                </form>
             </section>
         </div>
             
