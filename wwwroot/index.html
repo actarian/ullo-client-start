@@ -34,7 +34,7 @@
                     &nbsp;             
                 </div>
             </section>
-            <section class="content" scrollable>
+            <section scrollable>
                 <br>    
                 <form name="signinForm" role="form" novalidate autocomplete="off" ng-submit="!signinFormBusy && signinForm.$valid && signin()">
                     <div ng-bind="model | json"></div>
@@ -71,7 +71,7 @@
         </div>
             
     </script>
-    <script type="text/ng-template" id="templates/temp.html">
+    <script type="text/ng-template" id="templates/stream-test.html">
         
 			<div class="inner"><!-- splash -->
 				<section class="vertical brand">
@@ -111,19 +111,21 @@
 			</div>
     </script>
 	<!-- js -->
+    <!--
 	<script src="js/vendors/dynamics.js"></script>
     <script src="js/vendors/angular.js"></script>
     <script src="js/vendors/angular-route.js"></script>
     <script src="js/vendors/angular-animate.js"></script>
     <script src="js/vendors/angular-messages.js"></script>
+    -->
+    <script src="js/vendors.min.js"></script>
+    <!--
     <script src="js/app/app.js"></script>
 	<script src="js/app/animations.js"></script>
 	<script src="js/app/directives.js"></script>
 	<script src="js/app/services.js"></script>
-    <!--
-    <script src="js/vendors.min.js"></script>
+    -->
     <script src="js/app.min.js"></script>
-	-->
 	<!-- fonts -->
     <link href='https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,300,700' rel='stylesheet' type='text/css'>
 	<!-- icons -->

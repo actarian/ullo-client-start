@@ -16,8 +16,49 @@ app.constant('APP', CONFIG);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
-	// SECURE ROUTING
-    $routeProvider.when('/stream', {
+    // UNSECURE ROUTING
+    $routeProvider.when('/splash', {
+        title: 'Splash',
+        templateUrl: 'templates/splash.html',
+        controller: 'SplashCtrl',
+        controllerAs: 'splashCtrl',
+
+    }).when('/test', {
+        title: 'Test',
+        templateUrl: 'templates/test.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'testCtrl',
+
+    }).when('/stream-test', {
+        title: 'Stream Test',
+        templateUrl: 'templates/test.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'testCtrl',
+
+    }).when('/signin-test', {
+        title: 'Sign In',
+        templateUrl: 'templates/signin-test.html',
+        controller: 'SignInTestCtrl',
+        controllerAs: 'signinCtrl',
+    }).when('/signin', {
+        title: 'Sign In',
+        templateUrl: 'templates/signin.html',
+        controller: 'SigninCtrl',
+        controllerAs: 'signinCtrl',
+
+    }).when('/signup', {
+        title: 'Sign Up',
+        templateUrl: 'templates/signup.html',
+        controller: 'SignupCtrl',
+        controllerAs: 'signupCtrl',
+
+    }).when('/404', {
+
+        title: 'Error 404',
+        templateUrl: '404.html',
+
+    // SECURE ROUTING
+    }).when('/stream', {
         title: 'Stream',
         templateUrl: 'templates/stream.html',
         controller: 'StreamCtrl',
@@ -87,36 +128,6 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
             }]
         },
         isForward: true,
-
-	// UNSECURE ROUTING
-    }).when('/splash', {
-        title: 'Splash',
-        templateUrl: 'templates/splash.html',
-        controller: 'SplashCtrl',
-        controllerAs: 'splashCtrl',
-
-    }).when('/signin', {
-        title: 'Sign In',
-        templateUrl: 'templates/signin.html',
-        controller: 'SigninCtrl',
-        controllerAs: 'signinCtrl',
-
-    }).when('/signup', {
-        title: 'Sign Up',
-        templateUrl: 'templates/signup.html',
-        controller: 'SignupCtrl',
-        controllerAs: 'signupCtrl',
-
-    }).when('/test', {
-        title: 'Test',
-        templateUrl: 'templates/dishes.html',
-        controller: 'TestCtrl',
-        controllerAs: 'testCtrl',
-
-    }).when('/404', {
-
-        title: 'Error 404',
-        templateUrl: '404.html',
 
     });
 

@@ -1,5 +1,66 @@
 /*global angular,FB,dynamics*/
 
+app.directive('backgroundSplash', ['$timeout', function ($timeout) {
+    return {
+        link: function (scope, element, attributes, model) {
+            var canvas = element[0];
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            var ctx = canvas.getContext('2d');
+
+            var aKey;
+            function draw(time) {
+                var d = time / 1000 % (Math.PI * 2);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                for(var i = 0; i < 50; i++) {
+                    var g = Math.PI * 2 / 50 * i;
+                    ctx.fillRect(canvas.width / 2 + 100 * Math.sin(g + d), canvas.height / 2 + 100 * Math.cos(g + d), 4, 4);
+                }
+            }
+            function play() {
+                function loop(time) {
+                    draw(time);
+                    aKey = window.requestAnimationFrame(loop, element);
+                }
+                if (!aKey) {
+                    loop();
+                }
+            }
+            function pause() {
+                if (aKey) {
+                    window.cancelAnimationFrame(aKey);
+                    aKey = null;
+                    // console.log('Animation.paused');
+                }
+            }
+            function playpause() {
+                if (aKey) {
+                    pause();
+                } else {
+                    play();
+                }
+            }
+            
+            function onDown(e) {
+                console.log('onDown');
+                playpause();
+            }
+            function addListeners() {
+                element.on('touchstart mousedown', onDown);
+            }
+            function removeListeners() {
+                element.off('touchstart mousedown', onDown);
+            }
+            scope.$on('$destroy', function () {
+                removeListeners();
+            });
+            addListeners();
+            play();
+        }
+    }
+}]);
+
 /**
    * @ngdoc directive
    * @name onTap

@@ -1,4 +1,5 @@
-﻿<div class="inner splash">
+﻿<div class="inner splash unselectable">
+    <canvas background-splash></canvas>
     <section class="vertical brand">
         <div class="inner">
             <div class="logo animated" animate="bounceIn" delay="50">
@@ -8,7 +9,8 @@
     </section>
     <section class="vertical cta">
         <div class="inner">
-            <button type="button" ng-click="onFacebookLogin()" class="btn btn-primary animated" ng-class="{ invisible: !showFacebookLoginButton, bounceInUp: showFacebookLoginButton }"><span>LOG WITH FACEBOOK</span></button>
+            <button type="button" ng-click="onFacebookLogin()" class="btn btn-primary animated" ng-class="{ invisible: !showFacebookLoginButton, bounceInUp: showFacebookLoginButton }" ng-if="showFacebookLoginButton"><span>LOG WITH FACEBOOK</span></button>
+            <button type="button" ng-click="onLogin()" class="btn btn-primary animated" ng-class="{ invisible: !showLoginButton, bounceInUp: showLoginButton }" ng-if="showLoginButton"><span>LOG IN</span></button>
         </div>
     </section>
 </div>

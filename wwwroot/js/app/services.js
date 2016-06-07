@@ -283,6 +283,613 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
     return Users;
 }]);
 
+app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
+
+    function Categories() {
+    }
+
+    Categories.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/categories/').then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Categories.detail = function (categoryId) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/categories/' + categoryId).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Categories;
+}]);
+
+app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
+
+    var uniqueId = 100;
+
+    function getRandomItems() {
+        var items = [];
+        while (items.length < 10) {
+            items.push({
+                id: uniqueId,
+                name: 'dish ' + uniqueId,
+                price: 3.20,
+                yes: Math.floor(Math.random() * 999),
+                no: Math.floor(Math.random() * 999),
+                pictures: [{
+                    route: 'http://lorempixel.com/750/375/food/' + (1 + uniqueId % 10), // 'http://placehold.it/750x375',
+                }],
+                user: {
+                    userName: 'User',
+                }
+            });
+            uniqueId++;
+        }
+        return items;
+    }
+
+    function TestSource() {
+    }
+    TestSource.uri = {
+        paging: false,
+    };
+    TestSource.resolve = function (rows) {
+        var items = getRandomItems();
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+
+    return TestSource;
+}]);
+
+app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
+
+    function Posts() {
+    }
+    Posts.uri = {
+        paging: APP.API + '/api/stream/paged',
+    };
+    Posts.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Post(item));
+        }, rows);
+    };
+
+    Posts.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/post/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Posts;
+}]);
+
+app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
+
+    function Dishes() {
+    }
+    Dishes.uri = {
+        paging: APP.API + '/api/dishes/paged',
+    };
+    Dishes.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+
+    Dishes.detail = function (id) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
+            deferred.resolve(new Dish(response.data));
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Dishes.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Dishes.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/').then(function success(response) {
+            var rows = [];
+            angular.forEach(response.data, function (item) {
+                this.push(new Dish(item));
+            }, rows);
+            deferred.resolve(rows);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Dishes;
+}]);
+
+app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($q, $http, $timeout, APP) {
+
+    var MAX_ITEMS = 5;
+
+    function DishesAutocomplete() {
+    }
+
+    DishesAutocomplete.prototype = {
+        setPhrase: function (phrase) {
+            // console.log('DishesAutocomplete.setPhrase', phrase);
+            var deferred = $q.defer();
+            $http.post(APP.API + '/api/dishes/autocomplete', { phrase: phrase }).then(function success(response) {
+                var data = {
+                    items: [],
+                    count: response.data.length,
+                };
+                angular.forEach(response.data, function (v, i) {
+                    if (i < MAX_ITEMS) {
+                        var value = {
+                            id: v.id,
+                            name: v.name,
+                        };
+                        var offset = v.name.toLowerCase().indexOf(phrase.toLowerCase());
+                        var length = phrase.length;
+                        value.NameA = value.name.substr(0, offset);
+                        value.NameB = value.name.substr(offset, length);
+                        value.NameC = value.name.substr(offset + length, value.name.length - (offset + length));
+                        data.items.push(value);
+                    }
+                });
+                deferred.resolve(data);
+            }, function error(response) {
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        },
+        setItem: function (item) {
+            var deferred = $q.defer();
+            $http.get(APP.API + '/api/dishes/' + item.id).then(function success(response) {
+                console.log('autoComplete.setItem', response.data);
+                deferred.resolve(response.data);
+            }, function error(response) {
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        },
+    };
+
+    return DishesAutocomplete;
+
+}]);
+
+app.factory('DataFilter', [function () {
+    function DataFilter(data) {
+        /*
+        this.dateFrom = null;
+        this.dateTo = null;
+        this.search = null;
+        this.status = null;
+        */
+        data ? angular.extend(this, data) : null;
+    }
+    DataFilter.prototype = {
+        getSearchParams: function (search) {
+            var a = [];
+            if (search) {
+                for (var p in search) {
+                    a.push({ name: p, value: search[p] });
+                }
+            }
+            return a;
+        },
+        getParams: function (source, infinite) {
+            var post = {}, value;
+            for (var p in this) {
+                if (p === 'dateFrom' ||
+                    p === 'dateTo' ||
+                    p === 'status') {
+                    value = this[p];
+                    if (value !== undefined) {
+                        post[p] = value;
+                    }
+                } else if (p === 'search') {
+                    post[p] = JSON.stringify(this.getSearchParams(this[p]), null, '');
+                }
+            }
+            post.page = source.page;
+            post.size = source.size;
+            post.infinite = infinite;
+            return post;
+        },
+    };
+    return DataFilter;
+}]);
+
+app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope', 'DataFilter', function ($q, $http, $httpAsync, $timeout, $rootScope, DataFilter) {
+
+    var PAGES_MAX = Number.POSITIVE_INFINITY;
+
+    function DataSource(data) {
+        this.busy = false;
+        this.error = false;
+        this.size = 10;
+        this.maxPages = 10;
+        this.rows = [];
+        this.filters = {};
+        this.service = {
+            url: '/api/items/paging',
+            resolve: function (items, rows) {
+                angular.forEach(items, function (item) {
+                    this.push(item);
+                }, rows);
+            },
+        };
+        data ? angular.extend(this, data) : null;
+        this.filters = new DataFilter(this.filters);
+        // FAKE SERVICE FOR TEST !!!
+        if (this.service.uri.paging === false) {
+            this.get = function (deferred, infinite) {
+                this.busy = true;
+                this.error = false;
+                $timeout(function () {
+                    infinite ? null : this.rows.length = 0;
+                    this.service.resolve(this.rows);
+                    this.page = 1;
+                    this.pages = 2;
+                    this.count = this.rows.length;
+                    this.pagination = this.getPages();
+                    this.busy = false;
+                    $rootScope.$broadcast('onDataSourceUpdate', this);
+                    deferred.resolve(this.rows);
+                    // console.log('DataSource.get');
+                }.bind(this), 1000);
+            };
+        }
+        this.flush();
+    }
+    DataSource.prototype = {
+        flush: function () {
+            this.pages = PAGES_MAX;
+            this.page = 1;
+            this.count = 0;
+            this.opened = null;
+        },
+        resolve: function (response) {
+            var responseHeader = response.headers('X-Pagination');
+            var responseView = responseHeader ? JSON.parse(responseHeader) : null;
+            // console.log('response', response, 'responseHeader', responseHeader, 'responseView', responseView);
+            if (responseView) {
+                this.page = responseView.page;
+                this.size = responseView.size;
+                this.pages = responseView.pages;
+                this.count = responseView.count;
+            } else {
+                this.page = 0;
+                this.size = responseView.size;
+                this.pages = 0;
+                this.count = 0;
+            }
+            this.pagination = this.getPages();
+        },
+        get: function (deferred, infinite) {
+            this.busy = true;
+            this.error = false;
+            $httpAsync.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) {
+                this.resolve(response);
+                infinite ? null : this.rows.length = 0;
+                this.service.resolve(response.data, this.rows);
+                $rootScope.$broadcast('onDataSourceUpdate', this);
+                deferred.resolve(this.rows);
+            }.bind(this), function error(response) {
+                console.log('error.response', response);
+                this.error = true;
+                deferred.reject(response);
+            }.bind(this))
+                .finally(function () {
+                    // console.log('DataSource.get');
+                    $timeout(function () {
+                        this.busy = false;
+                    }.bind(this), 1000);
+                }.bind(this));
+        },
+        paging: function () {
+            var deferred = $q.defer();
+            if (this.busy || this.page > this.pages) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.paging');
+                this.opened = null;
+                this.get(deferred);
+            }
+            return deferred.promise;
+        },
+        refresh: function () {
+            var deferred = $q.defer();
+            if (this.busy) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.refresh');
+                this.flush();
+                this.get(deferred);
+            }
+            return deferred.promise;
+        },
+        more: function () {
+            var deferred = $q.defer();
+            if (this.busy || this.page + 1 > this.pages) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.more');
+                this.page++;
+                this.get(deferred, true);
+            }
+            return deferred.promise;
+        },
+        filter: function () {
+            this.page = 1;
+            this.pages = PAGES_MAX;
+            this.paging();
+        },
+        prevPage: function () {
+            var page = this.page - 1;
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        nextPage: function () {
+            var page = this.page + 1;
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        gotoPage: function (page) {
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        firstPage: function () {
+            if (this.page !== 1) {
+                this.page = 1;
+                this.paging();
+            }
+        },
+        lastPage: function () {
+            if (this.page !== this.pages) {
+                this.page = this.pages;
+                this.paging();
+            }
+        },
+        hasMany: function () {
+            return this.count > 0 && this.pages > this.maxPages;
+        },
+        hasMorePagesBehind: function () {
+            var startingIndex = Math.max(0, this.page - this.maxPages);
+            return startingIndex > 0;
+        },
+        hasMorePagesNext: function () {
+            var endingIndex = Math.max(0, this.page - this.maxPages) + this.maxPages;
+            return endingIndex < this.pages;
+        },
+        isPage: function (number) {
+            return this.page === number;
+        },
+        hasPages: function () {
+            return this.pages > 0 && this.pages < PAGES_MAX;
+        },
+        getPages: function () {
+            var a = [], i;
+            if (this.hasPages()) {
+                var startingIndex = Math.max(0, this.page - this.maxPages);
+                var endingIndex = Math.min(this.pages, startingIndex + this.maxPages);
+                i = startingIndex;
+                while (i < endingIndex) {
+                    a.push({ number: (i + 1) });
+                    i++;
+                }
+            }
+            return a;
+        },
+        openClose: function (index) {
+            if (this.opened === index) {
+                this.opened = null;
+            } else {
+                this.opened = index;
+            }
+        }
+    };
+    return DataSource;
+}]);
+
+app.factory('Cookie', ['$q', '$window', function ($q, $window) {
+    function Cookie() {
+    }
+    Cookie.TIMEOUT = 5 * 60 * 1000; // five minutes
+    Cookie._set = function (name, value, days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        } else {
+            var expires = "";
+        }
+        $window.document.cookie = name + "=" + value + expires + "; path=/";
+    }
+    Cookie.set = function (name, value, days) {
+        try {
+            var cache = [];
+            var json = JSON.stringify(value, function (key, value) {
+                if (key === 'pool') {
+                    return;
+                }
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.indexOf(value) !== -1) {
+                        // Circular reference found, discard key
+                        return;
+                    }
+                    cache.push(value);
+                }
+                return value;
+            });
+            cache = null;
+            Cookie._set(name, json, days);
+        } catch (e) {
+            console.log('Cookie.set.error serializing', name, value, e);
+        }
+    };
+    Cookie.get = function (name) {
+        var cookieName = name + "=";
+        var ca = $window.document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1, c.length);
+            }
+            if (c.indexOf(cookieName) == 0) {
+                var value = c.substring(cookieName.length, c.length);
+                var data = null;
+                try {
+                    data = JSON.parse(value);
+                } catch (e) {
+                    console.log('Cookie.get.error parsing', key, e);
+                };
+                return data;
+            }
+        }
+        return null;
+    };
+    Cookie.delete = function (name) {
+        Cookie._set(name, "", -1);
+    };
+    Cookie.on = function (name) {
+        var deferred = $q.defer();
+        var i, interval = 1000, elapsed = 0, timeout = Cookie.TIMEOUT;
+        function checkCookie() {
+            if (elapsed > timeout) {
+                deferred.reject('timeout');
+            } else {
+                var c = Cookie.get(name);
+                if (c) {
+                    deferred.resolve(c);
+                } else {
+                    elapsed += interval;
+                    i = setTimeout(checkCookie, interval);
+                }
+            }
+        }
+        checkCookie();
+        return deferred.promise;
+    };
+    return Cookie;
+}]);
+
+app.factory('LocalStorage', ['$q', '$window', 'Cookie', function ($q, $window, Cookie) {
+    function LocalStorage() {
+    }
+    function isLocalStorageSupported() {
+        var supported = false;
+        try {
+            supported = 'localStorage' in $window && $window['localStorage'] !== null;
+            if (supported) {
+                $window.localStorage.setItem('test', '1');
+                $window.localStorage.removeItem('test');
+            } else {
+                supported = false;
+            }
+        } catch (e) {
+            supported = false;
+        }
+        return supported;
+    }
+    LocalStorage.isSupported = isLocalStorageSupported();
+    if (LocalStorage.isSupported) {
+        LocalStorage.set = function (name, value) {
+            try {
+                var cache = [];
+                var json = JSON.stringify(value, function (key, value) {
+                    if (key === 'pool') {
+                        return;
+                    }
+                    if (typeof value === 'object' && value !== null) {
+                        if (cache.indexOf(value) !== -1) {
+                            // Circular reference found, discard key
+                            return;
+                        }
+                        cache.push(value);
+                    }
+                    return value;
+                });
+                cache = null;
+                $window.localStorage.setItem(name, json);
+            } catch (e) {
+                console.log('LocalStorage.set.error serializing', name, value, e);
+            }
+        };
+        LocalStorage.get = function (name) {
+            var value = null;
+            if ($window.localStorage[name] !== undefined) {
+                try {
+                    value = JSON.parse($window.localStorage[name]);
+                } catch (e) {
+                    console.log('LocalStorage.get.error parsing', name, e);
+                }
+            }
+            return value;
+        };
+        LocalStorage.delete = function (name) {
+            $window.localStorage.removeItem(name);
+        };
+        LocalStorage.on = function (name) {
+            var deferred = $q.defer();
+            var i, timeout = Cookie.TIMEOUT;
+            function storageEvent(e) {
+                // console.log('LocalStorage.on', name, e);
+                clearTimeout(i);
+                if (e.originalEvent.key == name) {
+                    try {
+                        var value = JSON.parse(e.originalEvent.newValue); // , e.originalEvent.oldValue
+                        deferred.resolve(value);
+                    } catch (e) {
+                        console.log('LocalStorage.on.error parsing', name, e);
+                        deferred.reject('error parsing ' + name);
+                    }
+                }
+            }
+            angular.element($window).on('storage', storageEvent);
+            i = setTimeout(function () {
+                deferred.reject('timeout');
+            }, timeout);
+            return deferred.promise;
+        };
+    } else {
+        console.log('LocalStorage.unsupported switching to cookies');
+        LocalStorage.set = Cookie.set;
+        LocalStorage.get = Cookie.get;
+        LocalStorage.delete = Cookie.delete;
+        LocalStorage.on = Cookie.on;
+    }
+    return LocalStorage;
+}]);
+
 app.factory('Vector', function() {
 	function Vector(x, y) {
         this.x = x || 0;

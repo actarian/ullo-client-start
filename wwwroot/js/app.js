@@ -2,6 +2,7 @@
 
 var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages']);
 
+/*
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
 	$routeProvider.when('/', {                
@@ -44,107 +45,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     $locationProvider.html5Mode(true);
     
 }]);
-
-app.controller('SignInCtrl', ['$scope', '$timeout', '$http', '$location', function ($scope, $timeout, $http, $location) {
-
-    $scope.model = {};
-
-    $scope.input2Options = [{
-        name: 'Option1',
-        id:1   
-    }, {
-        name: 'Option2',
-        id:2   
-    }]
-    
-    $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
-        $scope.input2Options = response.data;
-    }, function(error) {
-        console.log('error', error);
-    });
-
-    $scope.signin = function () {
-        $scope.signinFormError = null;
-        $scope.signinFormBusy = true;
-        $scope.clicked = true;
-        $timeout(function() {
-            $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
-                console.log('signin', success);
-                $location.path('/stream');
-            }, function(error) {
-                console.log('error', error);
-                $scope.signinFormError = { message: error.message };
-            }).finally(function() {
-                $timeout(function() {
-                    $scope.signinFormBusy = false;
-                }, 3000);
-            });
-            $scope.clicked = false;
-        }, 1000);
-    };
-    
-}]);
-    
-app.controller('TestCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
-
-    $scope.model = {
-        label: 'Carica',
-    };
-        
-    setTimeout(function() {
-        $scope.model.label = 'Carica Stream';
-    }, 1000);
-
-    $scope.item = {
-        id: 117,
-        user: {
-            userName: 'Fabio Ottaviani',
-            facebookId: '10153341954226947',
-            route: 'fabio-ottaviani'
-        },
-        dish: {
-            price: 5,
-            isVeganFriendly: false,
-            yes: 1,
-            no: 0,
-            created: '2016-04-27T19:13:45.497',
-            vote: {
-                dishId: 19,
-                like: true,
-                created: '2016-04-27T19:14:00.497'
-            },
-            categories: [
-                {
-                    id: 2,
-                    name: 'Piadine',
-                    key: 'piadine'
-                }
-            ],
-            id: 19,
-            name: 'Pizza Margherita',
-            key: 'pizzaMargherita'
-        },
-        picture: {
-            guid: '8fe99743-4ed3-46de-ba13-2c1bd7a45ffe',
-            created: '2016-04-27T19:13:41.02',
-            id: 20,
-            name: '8fe99743-4ed3-46de-ba13-2c1bd7a45ffe',
-            route: '/Media/Files/8fe99743-4ed3-46de-ba13-2c1bd7a45ffe.jpg',
-            key: '8Fe997434Ed346DeBa132C1bd7a45ffe'
-        },
-        created: '2016-04-27T19:13:45.497'
-    };
-    
-    $scope.loadStream = function() {
-        $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
-            $scope.items = response.data;
-        }, function(error) {
-            console.log('error', error);
-        });
-    };
-
-}]);
-
+*/
 
 /*global angular,dynamics*/
 
@@ -246,8 +147,49 @@ app.constant('APP', CONFIG);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
-	// SECURE ROUTING
-    $routeProvider.when('/stream', {
+    // UNSECURE ROUTING
+    $routeProvider.when('/splash', {
+        title: 'Splash',
+        templateUrl: 'templates/splash.html',
+        controller: 'SplashCtrl',
+        controllerAs: 'splashCtrl',
+
+    }).when('/test', {
+        title: 'Test',
+        templateUrl: 'templates/test.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'testCtrl',
+
+    }).when('/stream-test', {
+        title: 'Stream Test',
+        templateUrl: 'templates/test.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'testCtrl',
+
+    }).when('/signin-test', {
+        title: 'Sign In',
+        templateUrl: 'templates/signin-test.html',
+        controller: 'SignInTestCtrl',
+        controllerAs: 'signinCtrl',
+    }).when('/signin', {
+        title: 'Sign In',
+        templateUrl: 'templates/signin.html',
+        controller: 'SigninCtrl',
+        controllerAs: 'signinCtrl',
+
+    }).when('/signup', {
+        title: 'Sign Up',
+        templateUrl: 'templates/signup.html',
+        controller: 'SignupCtrl',
+        controllerAs: 'signupCtrl',
+
+    }).when('/404', {
+
+        title: 'Error 404',
+        templateUrl: '404.html',
+
+    // SECURE ROUTING
+    }).when('/stream', {
         title: 'Stream',
         templateUrl: 'templates/stream.html',
         controller: 'StreamCtrl',
@@ -318,36 +260,6 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
         },
         isForward: true,
 
-	// UNSECURE ROUTING
-    }).when('/splash', {
-        title: 'Splash',
-        templateUrl: 'templates/splash.html',
-        controller: 'SplashCtrl',
-        controllerAs: 'splashCtrl',
-
-    }).when('/signin', {
-        title: 'Sign In',
-        templateUrl: 'templates/signin.html',
-        controller: 'SigninCtrl',
-        controllerAs: 'signinCtrl',
-
-    }).when('/signup', {
-        title: 'Sign Up',
-        templateUrl: 'templates/signup.html',
-        controller: 'SignupCtrl',
-        controllerAs: 'signupCtrl',
-
-    }).when('/test', {
-        title: 'Test',
-        templateUrl: 'templates/dishes.html',
-        controller: 'TestCtrl',
-        controllerAs: 'testCtrl',
-
-    }).when('/404', {
-
-        title: 'Error 404',
-        templateUrl: '404.html',
-
     });
 
     $routeProvider.otherwise('/stream');
@@ -365,7 +277,478 @@ app.config(['$httpProvider', function ($httpProvider) {
 
 /*global angular,FB */
 
+app.controller('SignInTestCtrl', ['$scope', '$timeout', '$http', '$location', function ($scope, $timeout, $http, $location) {
+
+    $scope.model = {};
+
+    $scope.input2Options = [{
+        name: 'Option1',
+        id:1   
+    }, {
+        name: 'Option2',
+        id:2   
+    }]
+    
+    $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
+        $scope.input2Options = response.data;
+    }, function(error) {
+        console.log('error', error);
+    });
+
+    $scope.signin = function () {
+        $scope.signinFormError = null;
+        $scope.signinFormBusy = true;
+        $scope.clicked = true;
+        $timeout(function() {
+            $http.post('http://ulloapi.wslabs.it/api/users/signin', $scope.model).then(function(success) {
+                console.log('signin', success);
+                $location.path('/stream-test');
+            }, function(error) {
+                console.log('error', error);
+                $scope.signinFormError = { message: error.message };
+            }).finally(function() {
+                $timeout(function() {
+                    $scope.signinFormBusy = false;
+                }, 3000);
+            });
+            $scope.clicked = false;
+        }, 1000);
+    };
+    
+}]);
+    
+app.controller('StreamTestCtrl', ['$scope', '$timeout', '$http', function ($scope, $timeout, $http) {
+
+    $scope.model = {
+        label: 'Carica',
+    };
+        
+    setTimeout(function() {
+        $scope.model.label = 'Carica Stream';
+    }, 1000);
+
+    $scope.item = {
+        id: 117,
+        user: {
+            userName: 'Fabio Ottaviani',
+            facebookId: '10153341954226947',
+            route: 'fabio-ottaviani'
+        },
+        dish: {
+            price: 5,
+            isVeganFriendly: false,
+            yes: 1,
+            no: 0,
+            created: '2016-04-27T19:13:45.497',
+            vote: {
+                dishId: 19,
+                like: true,
+                created: '2016-04-27T19:14:00.497'
+            },
+            categories: [
+                {
+                    id: 2,
+                    name: 'Piadine',
+                    key: 'piadine'
+                }
+            ],
+            id: 19,
+            name: 'Pizza Margherita',
+            key: 'pizzaMargherita'
+        },
+        picture: {
+            guid: '8fe99743-4ed3-46de-ba13-2c1bd7a45ffe',
+            created: '2016-04-27T19:13:41.02',
+            id: 20,
+            name: '8fe99743-4ed3-46de-ba13-2c1bd7a45ffe',
+            route: '/Media/Files/8fe99743-4ed3-46de-ba13-2c1bd7a45ffe.jpg',
+            key: '8Fe997434Ed346DeBa132C1bd7a45ffe'
+        },
+        created: '2016-04-27T19:13:45.497'
+    };
+    
+    $scope.loadStream = function() {
+        $http.get('http://ulloapi.wslabs.it/api/stream/anonymous').then(function(response){
+            $scope.items = response.data;
+        }, function(error) {
+            console.log('error', error);
+        });
+    };
+
+}]);
+
+app.controller('RootCtrl', ['$scope', '$location', '$q', 'FacebookService', 'Users', function ($scope, $location, $q, FacebookService, Users) {
+
+    $scope.Users = Users;
+
+    $scope.signOut = function () {
+        if ($scope.logoutBusy) {
+            return;
+        }
+		$scope.logoutBusy = true;
+		$q.all([
+			Users.signout(),
+			FacebookService.logout()
+		]).then(function(data) {
+			$location.path('/splash');
+		}, function(error) {
+			console.log('signOut.error', error);
+		}).finally(function() {
+			$scope.logoutBusy = false;
+		});
+    };
+
+    $scope.goStream = function () {
+        $location.path('/stream');
+    };
+
+    $scope.goPost = function () {
+        $location.path('/post');
+    };
+
+    $scope.goDish = function (dishId) {
+        $location.path('/dishes/' + dishId);
+    };
+
+    $scope.goCategory = function (categoryId) {
+        $location.path('/categories/' + categoryId);
+    };
+
+    $scope.goUser = function (userRoute) {
+        $location.path('/users/' + userRoute);
+    };
+
+    $scope.goSettings = function () {
+        $location.path('/settings');
+    };
+
+}]);
+
+app.controller('SplashCtrl', ['$scope', '$location', '$timeout', '$window', 'FacebookService', 'Users', function ($scope, $location, $timeout, $window, FacebookService, Users) {
+
+    var useFacebook = false;
+
+    $scope.splashBusy = true;
+
+	$timeout(function() {
+        if (useFacebook) {
+            FacebookService.getLoginStatus().then(function(success) {
+                console.log('SplashCtrl.getLoginStatus.success', success.authResponse);
+                signinOrSignup(success.authResponse);
+
+            }, function(error) {
+                console.log('SplashCtrl.getLoginStatus.error', error);
+                $scope.showFacebookLoginButton = true;
+
+            }).finally(function() {
+                $scope.splashBusy = false;
+            });
+        } else {
+            $scope.showLoginButton = true;
+            $scope.splashBusy = false;
+        }
+	}, 1000);
+
+    function signinOrSignup(auth) {
+        $scope.splashBusy = true;
+        Users.signInWithFacebook(auth).then(function(success) {
+            $location.path('/stream');
+        }, function(error) {
+            $location.path('/signup');
+        }).finally(function() {
+            $scope.splashBusy = false;
+        });
+    }
+
+    $scope.onFacebookLogin = function() {
+        $scope.splashBusy = true;
+        FacebookService.login().then(function(success) {
+            signinOrSignup(success.authResponse);
+        }, function(error) {
+            console.log('onFacebookLogin', error);
+        }).finally(function() {
+            $scope.splashBusy = false;
+        });
+    };
+
+    $scope.onLogin = function() {
+        $location.path('/signin');
+    };
+
+}]);
+
+app.controller('SigninCtrl', ['$scope', '$location', 'Users', 'FacebookService', function ($scope, $location, Users, FacebookService) {
+
+    $scope.model = {};
+
+    $scope.signin = function () {
+        $scope.signinFormError = null;
+        $scope.signinFormBusy = true;
+        Users.signin($scope.model).then(function (user) {
+            $location.path('/stream');
+        }, function (error) {
+            $scope.signinFormError = error.message;
+        }).finally(function () {
+            $scope.signinFormBusy = false;
+        });
+    };
+
+}]);
+
+app.controller('SignupCtrl', ['$scope', '$location', 'FacebookService', 'Users', function ($scope, $location, FacebookService, Users) {
+
+    FacebookService.getFacebookMe().then(function(me) {
+        console.log('SignupCtrl.getFacebookMe', me);
+        $scope.model = {
+            userName : me.name,
+            email : me.email,
+            firstName : me.first_name,
+            lastName : me.last_name,
+            facebookId : me.id,
+            facebookPicture : me.picture.data.url,
+            facebookToken : FacebookService.authResponse.accessToken,
+        };
+    }, function(error) {
+        console.log('SignupCtrl.getFacebookMe.error', error);
+    });
+
+    $scope.signup = function () {
+        console.log('SignupCtrl.signup', $scope.model);
+        $scope.signupFormError = null;
+        $scope.signupFormBusy = true;
+        Users.signup($scope.model).then(function (user) {
+            $location.path('/stream');
+        }, function (error) {
+            $scope.signupFormError = error.data.message;
+        }).finally(function () {
+            $scope.signupFormBusy = false;
+        });
+    };
+
+}]);
+
+app.controller('StreamCtrl', ['$scope', '$location', '$timeout', 'DataSource', 'Posts', 'Upload', function ($scope, $location, $timeout, DataSource, Posts, Upload) {
+
+    $scope.filters = {
+        search: {
+        }
+    };
+
+    $scope.source = new DataSource({
+        service: Posts,
+        filters: $scope.filters
+    });
+
+    $scope.source.paging();
+
+    $scope.onUploadFileSelected = function(file, newFiles) {
+        if (!file) {
+            return;
+        }
+        $scope.$root.pictureBase64 = null;
+        Upload.dataUrl(file, true).then(function (url) {
+            $scope.$root.pictureBase64 = url;
+            $location.path('/post');
+        });
+    };
+
+}]);
+
+app.controller('PostCtrl', ['$scope', '$timeout', '$location', 'Upload', 'Categories', 'Posts', 'DishesAutocomplete', function ($scope, $timeout, $location, Upload, Categories, Posts, DishesAutocomplete) {
+
+    Categories.get().then(function(categories) {
+        $scope.categories = categories;
+    })
+
+    $scope.dishesAutocomplete = new DishesAutocomplete();
+
+    $scope.model = {
+        pictureBase64: $scope.$root.pictureBase64 || null,
+        dish: {
+            categories: [],
+        }
+    };
+
+    $scope.onUploadFileSelected = function(file, newFiles) {
+        $scope.model.pictureBase64 = null;
+        Upload.dataUrl(file, true).then(function (url) {
+            $scope.model.pictureBase64 = url;
+        });
+    };
+
+    $scope.hasPicture = function () {
+        var has = $scope.model.pictureBase64 !== null;
+        $scope.pictureError = true;
+        $timeout(function () {
+            $scope.pictureError = false;
+        }, 1000);
+        return has;
+    };
+
+    $scope.onDishSelected = function(item) {
+        console.log('onDishSelected', item);
+        $scope.model.dish.id = item.id;
+        $scope.model.dish.price = item.price;
+        $scope.model.dish.categories = item.categories;
+        $scope.model.dish.isVeganFriendly = item.isVeganFriendly;
+    };
+
+    $scope.submitPost = function () {
+        console.log('PostCtrl.submitPost', $scope.model);
+        $scope.postFormBusy = true;
+        $scope.postFormError = null;
+        $timeout(function () {
+            Posts.add($scope.model).then(function(post) {
+                $scope.model.id = post.id;
+                $location.path('/stream');
+            }, function(error) {
+                $scope.postFormError = error.config.url + ' ' + error.status + ' ' + error.statusText;
+            }).finally(function(){
+                $scope.postFormBusy = false;
+            });
+        }, 1);
+    };
+
+}]);
+
+app.controller('DishCtrl', ['$scope', '$routeParams', 'Dishes', function ($scope, $routeParams, Dishes) {
+
+    Dishes.detail($routeParams.dishId).then(function(item) {
+       $scope.item = item;
+    });
+
+}]);
+
+app.controller('CategoryCtrl', ['$scope', '$routeParams', 'Categories', 'DataSource', 'Dishes', function ($scope, $routeParams, Categories, DataSource, Dishes) {
+
+    Categories.detail($routeParams.categoryId).then(function(category) {
+       $scope.category = category;
+
+       $scope.filters = {
+            search: {
+                Category: category.name
+            }
+        };
+
+        $scope.source = new DataSource({
+            service: Dishes,
+            filters: $scope.filters
+        });
+
+        $scope.source.paging();
+
+    });
+
+}]);
+
+app.controller('UserCtrl', ['$scope', '$routeParams', 'Users', 'DataSource', 'Dishes', function ($scope, $routeParams, Users, DataSource, Dishes) {
+
+    Users.detail($routeParams.userRoute).then(function(user) {
+       $scope.user = user;
+
+       $scope.filters = {
+            search: {
+                UserName: user.userName
+            }
+        };
+
+        $scope.source = new DataSource({
+            service: Dishes,
+            filters: $scope.filters
+        });
+
+        $scope.source.paging();
+
+    });
+
+}]);
+
+app.controller('SettingsCtrl', ['$scope', '$routeParams', 'Users', function ($scope, $routeParams, Users) {
+
+    $scope.user = Users.currentUser();
+
+}]);
+
+app.controller('DishTestCtrl', ['$scope', '$location', '$timeout', 'DataSource', 'DishesTest', function ($scope, $location, $timeout, DataSource, DishesTest) {
+
+    $scope.filters = {
+        search: {
+        }
+    };
+
+    $scope.source = new DataSource({
+        service: DishesTest,
+        filters: $scope.filters
+    });
+
+    $timeout(function() {
+        $scope.source.paging();
+    }, 1000);
+
+}]);
+
 /*global angular,FB,dynamics*/
+
+app.directive('backgroundSplash', ['$timeout', function ($timeout) {
+    return {
+        link: function (scope, element, attributes, model) {
+            var canvas = element[0];
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            var ctx = canvas.getContext('2d');
+
+            var aKey;
+            function draw(time) {
+                var d = time / 1000 % (Math.PI * 2);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                for(var i = 0; i < 50; i++) {
+                    var g = Math.PI * 2 / 50 * i;
+                    ctx.fillRect(canvas.width / 2 + 100 * Math.sin(g + d), canvas.height / 2 + 100 * Math.cos(g + d), 4, 4);
+                }
+            }
+            function play() {
+                function loop(time) {
+                    draw(time);
+                    aKey = window.requestAnimationFrame(loop, element);
+                }
+                if (!aKey) {
+                    loop();
+                }
+            }
+            function pause() {
+                if (aKey) {
+                    window.cancelAnimationFrame(aKey);
+                    aKey = null;
+                    // console.log('Animation.paused');
+                }
+            }
+            function playpause() {
+                if (aKey) {
+                    pause();
+                } else {
+                    play();
+                }
+            }
+            
+            function onDown(e) {
+                console.log('onDown');
+                playpause();
+            }
+            function addListeners() {
+                element.on('touchstart mousedown', onDown);
+            }
+            function removeListeners() {
+                element.off('touchstart mousedown', onDown);
+            }
+            scope.$on('$destroy', function () {
+                removeListeners();
+            });
+            addListeners();
+            play();
+        }
+    }
+}]);
 
 /**
    * @ngdoc directive
@@ -1765,6 +2148,613 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
     };
 
     return Users;
+}]);
+
+app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
+
+    function Categories() {
+    }
+
+    Categories.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/categories/').then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Categories.detail = function (categoryId) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/categories/' + categoryId).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Categories;
+}]);
+
+app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
+
+    var uniqueId = 100;
+
+    function getRandomItems() {
+        var items = [];
+        while (items.length < 10) {
+            items.push({
+                id: uniqueId,
+                name: 'dish ' + uniqueId,
+                price: 3.20,
+                yes: Math.floor(Math.random() * 999),
+                no: Math.floor(Math.random() * 999),
+                pictures: [{
+                    route: 'http://lorempixel.com/750/375/food/' + (1 + uniqueId % 10), // 'http://placehold.it/750x375',
+                }],
+                user: {
+                    userName: 'User',
+                }
+            });
+            uniqueId++;
+        }
+        return items;
+    }
+
+    function TestSource() {
+    }
+    TestSource.uri = {
+        paging: false,
+    };
+    TestSource.resolve = function (rows) {
+        var items = getRandomItems();
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+
+    return TestSource;
+}]);
+
+app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
+
+    function Posts() {
+    }
+    Posts.uri = {
+        paging: APP.API + '/api/stream/paged',
+    };
+    Posts.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Post(item));
+        }, rows);
+    };
+
+    Posts.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/post/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Posts;
+}]);
+
+app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
+
+    function Dishes() {
+    }
+    Dishes.uri = {
+        paging: APP.API + '/api/dishes/paged',
+    };
+    Dishes.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+
+    Dishes.detail = function (id) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
+            deferred.resolve(new Dish(response.data));
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Dishes.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    Dishes.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/').then(function success(response) {
+            var rows = [];
+            angular.forEach(response.data, function (item) {
+                this.push(new Dish(item));
+            }, rows);
+            deferred.resolve(rows);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
+    return Dishes;
+}]);
+
+app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($q, $http, $timeout, APP) {
+
+    var MAX_ITEMS = 5;
+
+    function DishesAutocomplete() {
+    }
+
+    DishesAutocomplete.prototype = {
+        setPhrase: function (phrase) {
+            // console.log('DishesAutocomplete.setPhrase', phrase);
+            var deferred = $q.defer();
+            $http.post(APP.API + '/api/dishes/autocomplete', { phrase: phrase }).then(function success(response) {
+                var data = {
+                    items: [],
+                    count: response.data.length,
+                };
+                angular.forEach(response.data, function (v, i) {
+                    if (i < MAX_ITEMS) {
+                        var value = {
+                            id: v.id,
+                            name: v.name,
+                        };
+                        var offset = v.name.toLowerCase().indexOf(phrase.toLowerCase());
+                        var length = phrase.length;
+                        value.NameA = value.name.substr(0, offset);
+                        value.NameB = value.name.substr(offset, length);
+                        value.NameC = value.name.substr(offset + length, value.name.length - (offset + length));
+                        data.items.push(value);
+                    }
+                });
+                deferred.resolve(data);
+            }, function error(response) {
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        },
+        setItem: function (item) {
+            var deferred = $q.defer();
+            $http.get(APP.API + '/api/dishes/' + item.id).then(function success(response) {
+                console.log('autoComplete.setItem', response.data);
+                deferred.resolve(response.data);
+            }, function error(response) {
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        },
+    };
+
+    return DishesAutocomplete;
+
+}]);
+
+app.factory('DataFilter', [function () {
+    function DataFilter(data) {
+        /*
+        this.dateFrom = null;
+        this.dateTo = null;
+        this.search = null;
+        this.status = null;
+        */
+        data ? angular.extend(this, data) : null;
+    }
+    DataFilter.prototype = {
+        getSearchParams: function (search) {
+            var a = [];
+            if (search) {
+                for (var p in search) {
+                    a.push({ name: p, value: search[p] });
+                }
+            }
+            return a;
+        },
+        getParams: function (source, infinite) {
+            var post = {}, value;
+            for (var p in this) {
+                if (p === 'dateFrom' ||
+                    p === 'dateTo' ||
+                    p === 'status') {
+                    value = this[p];
+                    if (value !== undefined) {
+                        post[p] = value;
+                    }
+                } else if (p === 'search') {
+                    post[p] = JSON.stringify(this.getSearchParams(this[p]), null, '');
+                }
+            }
+            post.page = source.page;
+            post.size = source.size;
+            post.infinite = infinite;
+            return post;
+        },
+    };
+    return DataFilter;
+}]);
+
+app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope', 'DataFilter', function ($q, $http, $httpAsync, $timeout, $rootScope, DataFilter) {
+
+    var PAGES_MAX = Number.POSITIVE_INFINITY;
+
+    function DataSource(data) {
+        this.busy = false;
+        this.error = false;
+        this.size = 10;
+        this.maxPages = 10;
+        this.rows = [];
+        this.filters = {};
+        this.service = {
+            url: '/api/items/paging',
+            resolve: function (items, rows) {
+                angular.forEach(items, function (item) {
+                    this.push(item);
+                }, rows);
+            },
+        };
+        data ? angular.extend(this, data) : null;
+        this.filters = new DataFilter(this.filters);
+        // FAKE SERVICE FOR TEST !!!
+        if (this.service.uri.paging === false) {
+            this.get = function (deferred, infinite) {
+                this.busy = true;
+                this.error = false;
+                $timeout(function () {
+                    infinite ? null : this.rows.length = 0;
+                    this.service.resolve(this.rows);
+                    this.page = 1;
+                    this.pages = 2;
+                    this.count = this.rows.length;
+                    this.pagination = this.getPages();
+                    this.busy = false;
+                    $rootScope.$broadcast('onDataSourceUpdate', this);
+                    deferred.resolve(this.rows);
+                    // console.log('DataSource.get');
+                }.bind(this), 1000);
+            };
+        }
+        this.flush();
+    }
+    DataSource.prototype = {
+        flush: function () {
+            this.pages = PAGES_MAX;
+            this.page = 1;
+            this.count = 0;
+            this.opened = null;
+        },
+        resolve: function (response) {
+            var responseHeader = response.headers('X-Pagination');
+            var responseView = responseHeader ? JSON.parse(responseHeader) : null;
+            // console.log('response', response, 'responseHeader', responseHeader, 'responseView', responseView);
+            if (responseView) {
+                this.page = responseView.page;
+                this.size = responseView.size;
+                this.pages = responseView.pages;
+                this.count = responseView.count;
+            } else {
+                this.page = 0;
+                this.size = responseView.size;
+                this.pages = 0;
+                this.count = 0;
+            }
+            this.pagination = this.getPages();
+        },
+        get: function (deferred, infinite) {
+            this.busy = true;
+            this.error = false;
+            $httpAsync.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) {
+                this.resolve(response);
+                infinite ? null : this.rows.length = 0;
+                this.service.resolve(response.data, this.rows);
+                $rootScope.$broadcast('onDataSourceUpdate', this);
+                deferred.resolve(this.rows);
+            }.bind(this), function error(response) {
+                console.log('error.response', response);
+                this.error = true;
+                deferred.reject(response);
+            }.bind(this))
+                .finally(function () {
+                    // console.log('DataSource.get');
+                    $timeout(function () {
+                        this.busy = false;
+                    }.bind(this), 1000);
+                }.bind(this));
+        },
+        paging: function () {
+            var deferred = $q.defer();
+            if (this.busy || this.page > this.pages) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.paging');
+                this.opened = null;
+                this.get(deferred);
+            }
+            return deferred.promise;
+        },
+        refresh: function () {
+            var deferred = $q.defer();
+            if (this.busy) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.refresh');
+                this.flush();
+                this.get(deferred);
+            }
+            return deferred.promise;
+        },
+        more: function () {
+            var deferred = $q.defer();
+            if (this.busy || this.page + 1 > this.pages) {
+                deferred.reject();
+            } else {
+                // console.log('DataSource.more');
+                this.page++;
+                this.get(deferred, true);
+            }
+            return deferred.promise;
+        },
+        filter: function () {
+            this.page = 1;
+            this.pages = PAGES_MAX;
+            this.paging();
+        },
+        prevPage: function () {
+            var page = this.page - 1;
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        nextPage: function () {
+            var page = this.page + 1;
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        gotoPage: function (page) {
+            if (page > 0 && page <= this.pages) {
+                this.page = page;
+                this.paging();
+            }
+        },
+        firstPage: function () {
+            if (this.page !== 1) {
+                this.page = 1;
+                this.paging();
+            }
+        },
+        lastPage: function () {
+            if (this.page !== this.pages) {
+                this.page = this.pages;
+                this.paging();
+            }
+        },
+        hasMany: function () {
+            return this.count > 0 && this.pages > this.maxPages;
+        },
+        hasMorePagesBehind: function () {
+            var startingIndex = Math.max(0, this.page - this.maxPages);
+            return startingIndex > 0;
+        },
+        hasMorePagesNext: function () {
+            var endingIndex = Math.max(0, this.page - this.maxPages) + this.maxPages;
+            return endingIndex < this.pages;
+        },
+        isPage: function (number) {
+            return this.page === number;
+        },
+        hasPages: function () {
+            return this.pages > 0 && this.pages < PAGES_MAX;
+        },
+        getPages: function () {
+            var a = [], i;
+            if (this.hasPages()) {
+                var startingIndex = Math.max(0, this.page - this.maxPages);
+                var endingIndex = Math.min(this.pages, startingIndex + this.maxPages);
+                i = startingIndex;
+                while (i < endingIndex) {
+                    a.push({ number: (i + 1) });
+                    i++;
+                }
+            }
+            return a;
+        },
+        openClose: function (index) {
+            if (this.opened === index) {
+                this.opened = null;
+            } else {
+                this.opened = index;
+            }
+        }
+    };
+    return DataSource;
+}]);
+
+app.factory('Cookie', ['$q', '$window', function ($q, $window) {
+    function Cookie() {
+    }
+    Cookie.TIMEOUT = 5 * 60 * 1000; // five minutes
+    Cookie._set = function (name, value, days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        } else {
+            var expires = "";
+        }
+        $window.document.cookie = name + "=" + value + expires + "; path=/";
+    }
+    Cookie.set = function (name, value, days) {
+        try {
+            var cache = [];
+            var json = JSON.stringify(value, function (key, value) {
+                if (key === 'pool') {
+                    return;
+                }
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.indexOf(value) !== -1) {
+                        // Circular reference found, discard key
+                        return;
+                    }
+                    cache.push(value);
+                }
+                return value;
+            });
+            cache = null;
+            Cookie._set(name, json, days);
+        } catch (e) {
+            console.log('Cookie.set.error serializing', name, value, e);
+        }
+    };
+    Cookie.get = function (name) {
+        var cookieName = name + "=";
+        var ca = $window.document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1, c.length);
+            }
+            if (c.indexOf(cookieName) == 0) {
+                var value = c.substring(cookieName.length, c.length);
+                var data = null;
+                try {
+                    data = JSON.parse(value);
+                } catch (e) {
+                    console.log('Cookie.get.error parsing', key, e);
+                };
+                return data;
+            }
+        }
+        return null;
+    };
+    Cookie.delete = function (name) {
+        Cookie._set(name, "", -1);
+    };
+    Cookie.on = function (name) {
+        var deferred = $q.defer();
+        var i, interval = 1000, elapsed = 0, timeout = Cookie.TIMEOUT;
+        function checkCookie() {
+            if (elapsed > timeout) {
+                deferred.reject('timeout');
+            } else {
+                var c = Cookie.get(name);
+                if (c) {
+                    deferred.resolve(c);
+                } else {
+                    elapsed += interval;
+                    i = setTimeout(checkCookie, interval);
+                }
+            }
+        }
+        checkCookie();
+        return deferred.promise;
+    };
+    return Cookie;
+}]);
+
+app.factory('LocalStorage', ['$q', '$window', 'Cookie', function ($q, $window, Cookie) {
+    function LocalStorage() {
+    }
+    function isLocalStorageSupported() {
+        var supported = false;
+        try {
+            supported = 'localStorage' in $window && $window['localStorage'] !== null;
+            if (supported) {
+                $window.localStorage.setItem('test', '1');
+                $window.localStorage.removeItem('test');
+            } else {
+                supported = false;
+            }
+        } catch (e) {
+            supported = false;
+        }
+        return supported;
+    }
+    LocalStorage.isSupported = isLocalStorageSupported();
+    if (LocalStorage.isSupported) {
+        LocalStorage.set = function (name, value) {
+            try {
+                var cache = [];
+                var json = JSON.stringify(value, function (key, value) {
+                    if (key === 'pool') {
+                        return;
+                    }
+                    if (typeof value === 'object' && value !== null) {
+                        if (cache.indexOf(value) !== -1) {
+                            // Circular reference found, discard key
+                            return;
+                        }
+                        cache.push(value);
+                    }
+                    return value;
+                });
+                cache = null;
+                $window.localStorage.setItem(name, json);
+            } catch (e) {
+                console.log('LocalStorage.set.error serializing', name, value, e);
+            }
+        };
+        LocalStorage.get = function (name) {
+            var value = null;
+            if ($window.localStorage[name] !== undefined) {
+                try {
+                    value = JSON.parse($window.localStorage[name]);
+                } catch (e) {
+                    console.log('LocalStorage.get.error parsing', name, e);
+                }
+            }
+            return value;
+        };
+        LocalStorage.delete = function (name) {
+            $window.localStorage.removeItem(name);
+        };
+        LocalStorage.on = function (name) {
+            var deferred = $q.defer();
+            var i, timeout = Cookie.TIMEOUT;
+            function storageEvent(e) {
+                // console.log('LocalStorage.on', name, e);
+                clearTimeout(i);
+                if (e.originalEvent.key == name) {
+                    try {
+                        var value = JSON.parse(e.originalEvent.newValue); // , e.originalEvent.oldValue
+                        deferred.resolve(value);
+                    } catch (e) {
+                        console.log('LocalStorage.on.error parsing', name, e);
+                        deferred.reject('error parsing ' + name);
+                    }
+                }
+            }
+            angular.element($window).on('storage', storageEvent);
+            i = setTimeout(function () {
+                deferred.reject('timeout');
+            }, timeout);
+            return deferred.promise;
+        };
+    } else {
+        console.log('LocalStorage.unsupported switching to cookies');
+        LocalStorage.set = Cookie.set;
+        LocalStorage.get = Cookie.get;
+        LocalStorage.delete = Cookie.delete;
+        LocalStorage.on = Cookie.on;
+    }
+    return LocalStorage;
 }]);
 
 app.factory('Vector', function() {
