@@ -1,128 +1,5 @@
 /*global angular,FB,dynamics*/
 
-app.directive('backgroundSplash', [function () {
-    return {
-        link: function (scope, element, attributes, model) {
-            var aKey;
-            function draw(time) {                
-            }
-            function play() {
-                function loop(time) {
-                    draw(time);
-                    aKey = window.requestAnimationFrame(loop, element);
-                }
-                if (!aKey) {
-                    loop();
-                }
-            }
-            function pause() {
-                if (aKey) {
-                    window.cancelAnimationFrame(aKey);
-                    aKey = null;
-                    // console.log('Animation.paused');
-                }
-            }
-            function playpause() {
-                if (aKey) {
-                    pause();
-                } else {
-                    play();
-                }
-            }
-            function onDown(e) {
-                console.log('onDown');
-            }
-            function onMove(e) {
-                // console.log('onMove');
-            }
-            function addListeners() {
-                element.on('touchstart mousedown', onDown);
-                element.on('touchmove mousemove', onMove);
-            }
-            function removeListeners() {
-                element.off('touchstart mousedown', onDown);
-                element.off('touchmove mousemove', onMove);
-            }
-            scope.$on('$destroy', function () {
-                removeListeners();
-            });
-            addListeners();
-            play();
-        }
-    }
-}]);
-
-app.factory('Point', [function(){
-    function Point(x, y, radius) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-    }
-    Point.prototype = {
-        draw: function(ctx, degree, w, h, pow, mouse) {            
-            var radius = this.radius * (1 + pow);
-            this.x = w / 2 + radius * Math.sin(degree);
-            this.y = h / 2 + radius * Math.cos(degree);              
-            ctx.fillStyle = "white";
-            ctx.fillRect(this.x, this.y, 4, 4);
-        },
-    }
-    return Point;
-}]);
-
-app.factory('Icon', [function(){
-    function Icon(x, y, radius, size) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-        this.size =     size || 64;
-        this.forcex =   0;
-        this.forcey =   0;
-        this.image =    new Image();
-        this.loaded =   false;            
-        this.init();        
-    }
-    Icon.prototype = {
-        init: function() {
-            var _this = this;
-            this.image.onload = function() {
-                _this.loaded = true;
-            }
-            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
-        },
-        repel: function (x, y, mouse) {
-            if (!mouse) {
-                this.x = x;
-                this.y = y;
-                return;
-            }
-            var magnet = 400;
-            var distance = mouse.distance(this);
-            var distancex = mouse.x - this.x;
-            var distancey = mouse.y - this.y;
-            var powerx = x - (distancex / distance) * magnet / distance;
-            var powery = y - (distancey / distance) * magnet / distance;            
-            this.forcex = (this.forcex + (this.x - x) / 2) / 2.1;
-            this.forcey = (this.forcey + (this.y - y) / 2) / 2.1;
-            this.x = powerx + this.forcex;
-            this.y = powery + this.forcey;
-        },
-        draw: function(ctx, degree, w, h, pow, mouse) {
-            var radius = this.radius * (1 + pow);
-            var x = w / 2 + radius * Math.sin(degree);
-            var y = h / 2 + radius * Math.cos(degree);
-            this.repel(x, y, mouse);
-            /*
-            this.x = x;
-            this.y = y;
-            */
-            if (this.loaded) {
-                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
-            };
-        },
-    }
-    return Icon;
-}]);
 
 app.factory('Animate', [function(){
     function Animate(callback) {
@@ -155,6 +32,171 @@ app.factory('Animate', [function(){
         }
     }
     return Animate;
+}]);
+
+app.factory('Point', ['Base', function(Base){
+    var Point = Base.extend(function Point(x, y, radius) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+    }, {
+        draw: function(ctx, degree, w, h, pow, mouse) {            
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);              
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, 4, 4);
+        },
+    });
+    /*
+    function Point(x, y, radius) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+    }
+    Point.prototype = {
+        draw: function(ctx, degree, w, h, pow, mouse) {            
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);              
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, 4, 4);
+        },
+    }
+    */
+    return Point;
+}]);
+
+app.factory('Icon', ['Point', function(Point){
+    /*
+    var Icon = Point.extend(function Icon(x, y, radius, size) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+        this.size =     size || 64;
+        this.forcex =   0;
+        this.forcey =   0;
+        this.image =    new Image();
+        this.loaded =   false;            
+        this.init();        
+    }, {
+        draw: function() {
+            console.log(this.constructor);
+        },
+    });
+    console.log(Icon.prototype);
+    */
+    function Icon(x, y, radius, size) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+        this.size =     size || 64;
+        this.forcex =   0;
+        this.forcey =   0;
+        this.image =    new Image();
+        this.loaded =   false;            
+        this.init();        
+    }
+    
+    Icon.prototype = {
+        init: function() {
+            var _this = this;
+            this.image.onload = function() {
+                _this.loaded = true;
+            }
+            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
+        },
+        repel: function (x, y, mouse) {
+            if (!mouse) {
+                this.x = x;
+                this.y = y;
+                return;
+            }
+            var magnet = 400;
+            var distance = mouse.distance(this);
+            var distancex = mouse.x - this.x;
+            var distancey = mouse.y - this.y;
+            var powerx = x - (distancex / distance) * magnet / distance;
+            var powery = y - (distancey / distance) * magnet / distance;            
+            this.forcex = (this.forcex + (this.x - x) / 2) / 2.1;
+            this.forcey = (this.forcey + (this.y - y) / 2) / 2.1;
+            this.x = powerx + this.forcex;
+            this.y = powery + this.forcey;
+        },
+        draw: function(ctx, degree, w, h, pow, mouse) {
+            var radius = this.radius * (1 + pow);
+            var x = w / 2 + radius * Math.sin(degree);
+            var y = h / 2 + radius * Math.cos(degree);
+            this.repel(x, y, mouse);
+            if (this.loaded) {
+                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            };
+        },
+    }
+    return Icon;
+}]);
+
+app.directive('backgroundSplash', ['Animate', 'Point', 'Icon', 'Utils', function (Animate, Point, Icon, Utils) {
+    return {
+        link: function (scope, element, attributes, model) {
+            var canvas = element[0];
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            var ctx = canvas.getContext('2d');
+
+            var items = [], maxItems = 18, pow = 0, speed = 1, ticks = 0, mouse = null;
+            while(items.length < maxItems) {
+                items.push(new Icon());
+            }
+
+            var animate = new Animate(function draw(time) { 
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ticks += speed;
+
+                var d = ticks / 1000 % (Math.PI * 2);
+                pow += (0 - pow) / 12;
+
+                angular.forEach(items, function(item, i) {
+                    var g = Math.PI * 2 / items.length * i;
+                    item.draw(ctx, g + d, canvas.width, canvas.height, pow, mouse);                    
+                });
+                /*
+                angular.forEach(items, function(item, i) {
+                    var d = Math.PI * 2 / items.length * i + time / 1000;
+                    item.draw(ctx, d, canvas.width, canvas.height, pow);
+                });
+                */
+            });
+
+            function onDown(e) {
+                console.log('onDown');
+                pow = 1;
+                // animate.playpause();
+            }
+            function onMove(e) {
+                // console.log('onMove');
+                var point = Utils.getTouch(e);
+                var local = Utils.getRelativeTouch(element, point);
+                speed = (250 - local.distance({ x: canvas.width / 2, y: canvas.height / 2 })) / 5;
+                speed = Math.min(40, Math.max(10, speed));
+                mouse = local;
+            }
+            function addListeners() {
+                element.on('touchstart mousedown', onDown);
+                element.on('touchmove mousemove', onMove);
+            }
+            function removeListeners() {
+                element.off('touchstart mousedown', onDown);
+                element.off('touchmove mousemove', onMove);
+            }
+            scope.$on('$destroy', function () {
+                removeListeners();
+            });
+            addListeners();
+            animate.play();
+        }
+    }
 }]);
 
 app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', function (Utils, Animate, Point, Icon) {
