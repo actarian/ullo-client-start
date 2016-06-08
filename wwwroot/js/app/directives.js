@@ -1,13 +1,179 @@
 /*global angular,FB,dynamics*/
 
-app.directive('backgroundSplash', ['$timeout', function ($timeout) {
+app.directive('backgroundSplash', [function () {
+    return {
+        link: function (scope, element, attributes, model) {
+            var aKey;
+            function draw(time) {                
+            }
+            function play() {
+                function loop(time) {
+                    draw(time);
+                    aKey = window.requestAnimationFrame(loop, element);
+                }
+                if (!aKey) {
+                    loop();
+                }
+            }
+            function pause() {
+                if (aKey) {
+                    window.cancelAnimationFrame(aKey);
+                    aKey = null;
+                    // console.log('Animation.paused');
+                }
+            }
+            function playpause() {
+                if (aKey) {
+                    pause();
+                } else {
+                    play();
+                }
+            }
+            function onDown(e) {
+                console.log('onDown');
+            }
+            function onMove(e) {
+                // console.log('onMove');
+            }
+            function addListeners() {
+                element.on('touchstart mousedown', onDown);
+                element.on('touchmove mousemove', onMove);
+            }
+            function removeListeners() {
+                element.off('touchstart mousedown', onDown);
+                element.off('touchmove mousemove', onMove);
+            }
+            scope.$on('$destroy', function () {
+                removeListeners();
+            });
+            addListeners();
+            play();
+        }
+    }
+}]);
+
+app.factory('Point', [function(){
+    function Point(x, y, radius) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+    }
+    Point.prototype = {
+        draw: function(ctx, degree, w, h, pow) {            
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);              
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, 4, 4);
+        },
+    }
+    return Point;
+}]);
+
+app.factory('Icon', [function(){
+    function Icon(x, y, radius, size) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+        this.size =     size || 64;
+        this.image = new Image();
+        this.loaded = false;            
+        this.init();        
+    }
+    Icon.prototype = {
+        init: function() {
+            var _this = this;
+            this.image.onload = function() {
+                _this.loaded = true;
+            }
+            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
+        },
+        draw: function(ctx, degree, w, h, pow) {
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);            
+            if (this.loaded) {
+                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            };
+        },
+    }
+    return Icon;
+}]);
+
+app.factory('Animate', [function(){
+    function Animate(callback) {
+        this.callback = callback;
+        this.key = null;        
+    }
+    Animate.prototype = {
+        play: function() {
+            var _this = this;
+            function loop(time) {
+                _this.callback(time);
+                _this.key = window.requestAnimationFrame(loop);
+            }
+            if (!this.key) {
+                loop();
+            }
+        },
+        pause: function() {
+            if (this.key) {
+                window.cancelAnimationFrame(this.key);
+                this.key = null;
+            }
+        },
+        playpause: function() {
+            if (this.key) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        }
+    }
+    return Animate;
+}]);
+
+app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', function (Utils, Animate, Point, Icon) {
     return {
         link: function (scope, element, attributes, model) {
             var canvas = element[0];
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             var ctx = canvas.getContext('2d');
+            /*
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.msImageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = false;
+            */
+            var maxItems = 18, pow = 0, speed = 1, ticks = 0;
 
+            var items = [];
+            while(items.length < maxItems) {
+                items.push(new Icon());
+            }
+
+            var animate = new Animate(function draw(time) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ticks += speed;
+
+                var d = ticks / 1000 % (Math.PI * 2);
+                pow += (0 - pow) / 12;
+
+                angular.forEach(items, function(item, i) {
+                    var g = Math.PI * 2 / items.length * i;
+                    item.draw(ctx, g + d, canvas.width, canvas.height, pow);                    
+                });
+                /*                
+                ctx.fillStyle = "white";
+                for(var i = 0; i < 50; i++) {
+                    var g = Math.PI * 2 / 50 * i;
+                    ctx.fillRect(canvas.width / 2 + 100 * Math.sin(g + d), canvas.height / 2 + 100 * Math.cos(g + d), 4, 4);
+                }
+                */
+            });
+            /*
             var aKey;
             function draw(time) {
                 var d = time / 1000 % (Math.PI * 2);
@@ -41,22 +207,32 @@ app.directive('backgroundSplash', ['$timeout', function ($timeout) {
                     play();
                 }
             }
-            
+            */
             function onDown(e) {
-                console.log('onDown');
-                playpause();
+                // console.log('onDown');
+                pow = 1;
+            }
+            function onMove(e) {
+                // console.log('onMove');
+                var point = Utils.getTouch(e);
+                var local = Utils.getRelativeTouch(element, point);
+                speed = (250 - local.distance({ x: canvas.width / 2, y: canvas.height / 2 })) / 5;
+                speed = Math.min(40, Math.max(10, speed));
+                // pow = 1;
             }
             function addListeners() {
                 element.on('touchstart mousedown', onDown);
+                element.on('touchmove mousemove', onMove);
             }
             function removeListeners() {
                 element.off('touchstart mousedown', onDown);
+                element.off('touchmove mousemove', onMove);
             }
             scope.$on('$destroy', function () {
                 removeListeners();
             });
             addListeners();
-            play();
+            animate.play();
         }
     }
 }]);
@@ -534,7 +710,7 @@ app.directive('ngImg', ['$parse', '$timeout', function ($parse, $timeout) {
 	</example>
 */
 app.directive('ngImgWorker', ['$parse', 'WebWorker', function ($parse, WebWorker) {
-    var worker = new WebWorker('/js/workers/loader.min.js');
+    var worker = new WebWorker('/js/workers/loader.js');
     return {
         restrict: 'A',
         link: function (scope, element, attributes, model) {

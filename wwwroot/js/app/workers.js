@@ -75,7 +75,7 @@ app.factory('$httpAsync', ['$q', '$http', function ($q, $http) {
     if (!isWebWorkerSupported) {
         return $http;
     }
-    var worker = new Worker('/js/workers/http.min.js');
+    var worker = new Worker('/js/workers/http.js');
     var callbacks = {};
     var id = 0;
     var lowercase = function (string) { return isString(string) ? string.toLowerCase() : string; };

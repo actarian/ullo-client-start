@@ -19,11 +19,13 @@
         }],
         "js": [{
             "src": [
+                "./bower_components/dynamics.js/lib/dynamics.js",
                 "./bower_components/angular/angular.js",
                 "./bower_components/angular-route/angular-route.js",
                 "./bower_components/angular-animate/angular-animate.js",                
                 "./bower_components/angular-messages/angular-messages.js",
-                "./bower_components/dynamics.js/lib/dynamics.js"
+                "./bower_components/angular-relative-date/dist/angular-relative-date.js",
+                "./bower_components/ng-file-upload/ng-file-upload.js"
             ],
             "folder": "./wwwroot/js/vendors"
         }, {

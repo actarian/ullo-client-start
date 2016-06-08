@@ -264,6 +264,8 @@ app.controller('StreamCtrl', ['$scope', '$location', '$timeout', 'DataSource', '
 
     $scope.source.paging();
 
+    console.log('paging');
+
     $scope.onUploadFileSelected = function(file, newFiles) {
         if (!file) {
             return;

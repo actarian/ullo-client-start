@@ -1,11 +1,8 @@
 /*global angular,FB */
 
 app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
-
     function FacebookService() {
-
     }
-
     FacebookService.FB = function () {
         var deferred = $q.defer();
         if (window['FB'] !== undefined) {
@@ -18,8 +15,7 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
             })
         }
         return deferred.promise;
-    }
-
+    };
     FacebookService.getFacebookMe = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -33,7 +29,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.getPictureMe = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -47,7 +42,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.getLoginStatus = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -57,7 +51,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.login = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -69,7 +62,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.logout = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -79,7 +71,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.deletePermissions = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -89,7 +80,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.init = function () {
         var deferred = $q.defer();
         window.fbAsyncInit = function () {
@@ -115,7 +105,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         }
         return deferred.promise;
     };
-
     function onFacebookStatus(response, deferred) {
         FacebookService.authResponse = null;
         if (response.status === 'connected') {
@@ -127,27 +116,21 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
             deferred.reject(response);
         }
     };
-
     return FacebookService;
-
 }]);
 
 app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStorage', 'User', function ($q, $http, $location, $timeout, APP, LocalStorage, User) {
-
     // PRIVATE VARIABLE FOR CURRENT USER
     var _currentUser = null;
-
     function Users() {
     }
-
+    // INSTANCE METHODS
     Users.prototype = {
     };
-
     // STATIC CLASS METHODS
     Users.currentUser = function () {
         return _currentUser;
     };
-
     Users.getCurrentUser = function () {
         var deferred = $q.defer();
         if (_currentUser) {
@@ -166,7 +149,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         }
         return deferred.promise;
     };
-
     Users.isLogged = function () {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -178,7 +160,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isAdmin = function () {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -188,7 +169,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isLoggedOrGoTo = function(redirect) {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -206,7 +186,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isAdminOrGoTo = function(redirect) {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -223,8 +202,7 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
             $location.path(redirect);
         })
         return deferred.promise;
-    },
-
+    };
     /** LOGIN METHODS **/
     Users.signup = function (model) {
         var deferred = $q.defer();
@@ -236,7 +214,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signin = function (model) {
         var deferred = $q.defer();
         $http.post(APP.API + '/api/users/signin/', model).then(function success(response) {
@@ -247,7 +224,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signInWithFacebook = function (auth) {
         var deferred = $q.defer();
         $http.post(APP.API + '/api/users/signinwithfacebook/', auth).then(function success(response) {
@@ -258,7 +234,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signout = function () {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/users/signout/').then(function success(response) {
@@ -269,7 +244,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.detail = function (userRoute) {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/users/route/' + userRoute).then(function success(response) {
@@ -279,15 +253,12 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     return Users;
 }]);
 
 app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
-
     function Categories() {
     }
-
     Categories.get = function () {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/categories/').then(function success(response) {
@@ -297,7 +268,6 @@ app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
         });
         return deferred.promise;
     };
-
     Categories.detail = function (categoryId) {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/categories/' + categoryId).then(function success(response) {
@@ -307,14 +277,79 @@ app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
         });
         return deferred.promise;
     };
-
     return Categories;
 }]);
 
+app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
+    function Posts() {
+    }
+    Posts.uri = {
+        paging: APP.API + '/api/stream/paged',
+    };
+    Posts.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Post(item));
+        }, rows);
+    };
+    Posts.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/post/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    return Posts;
+}]);
+
+app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
+    function Dishes() {
+    }
+    Dishes.uri = {
+        paging: APP.API + '/api/dishes/paged',
+    };
+    Dishes.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+    Dishes.detail = function (id) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
+            deferred.resolve(new Dish(response.data));
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    Dishes.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    Dishes.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/').then(function success(response) {
+            var rows = [];
+            angular.forEach(response.data, function (item) {
+                this.push(new Dish(item));
+            }, rows);
+            deferred.resolve(rows);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    return Dishes;
+}]);
+
 app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
-
     var uniqueId = 100;
-
     function getRandomItems() {
         var items = [];
         while (items.length < 10) {
@@ -335,7 +370,6 @@ app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
         }
         return items;
     }
-
     function TestSource() {
     }
     TestSource.uri = {
@@ -347,93 +381,13 @@ app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
             this.push(new Dish(item));
         }, rows);
     };
-
     return TestSource;
 }]);
 
-app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
-
-    function Posts() {
-    }
-    Posts.uri = {
-        paging: APP.API + '/api/stream/paged',
-    };
-    Posts.resolve = function (items, rows) {
-        angular.forEach(items, function (item) {
-            this.push(new Post(item));
-        }, rows);
-    };
-
-    Posts.add = function (model) {
-        var deferred = $q.defer();
-        $http.post(APP.API + '/api/post/', model).then(function success(response) {
-            deferred.resolve(response.data);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    return Posts;
-}]);
-
-app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
-
-    function Dishes() {
-    }
-    Dishes.uri = {
-        paging: APP.API + '/api/dishes/paged',
-    };
-    Dishes.resolve = function (items, rows) {
-        angular.forEach(items, function (item) {
-            this.push(new Dish(item));
-        }, rows);
-    };
-
-    Dishes.detail = function (id) {
-        var deferred = $q.defer();
-        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
-            deferred.resolve(new Dish(response.data));
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    Dishes.add = function (model) {
-        var deferred = $q.defer();
-        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
-            deferred.resolve(response.data);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    Dishes.get = function () {
-        var deferred = $q.defer();
-        $http.get(APP.API + '/api/dishes/').then(function success(response) {
-            var rows = [];
-            angular.forEach(response.data, function (item) {
-                this.push(new Dish(item));
-            }, rows);
-            deferred.resolve(rows);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    return Dishes;
-}]);
-
 app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($q, $http, $timeout, APP) {
-
     var MAX_ITEMS = 5;
-
     function DishesAutocomplete() {
     }
-
     DishesAutocomplete.prototype = {
         setPhrase: function (phrase) {
             // console.log('DishesAutocomplete.setPhrase', phrase);
@@ -474,9 +428,7 @@ app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($
             return deferred.promise;
         },
     };
-
     return DishesAutocomplete;
-
 }]);
 
 app.factory('DataFilter', [function () {
@@ -523,9 +475,7 @@ app.factory('DataFilter', [function () {
 }]);
 
 app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope', 'DataFilter', function ($q, $http, $httpAsync, $timeout, $rootScope, DataFilter) {
-
     var PAGES_MAX = Number.POSITIVE_INFINITY;
-
     function DataSource(data) {
         this.busy = false;
         this.error = false;
@@ -591,7 +541,7 @@ app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope'
         get: function (deferred, infinite) {
             this.busy = true;
             this.error = false;
-            $httpAsync.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) {
+            $http.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) { // $httpAsync
                 this.resolve(response);
                 infinite ? null : this.rows.length = 0;
                 this.service.resolve(response.data, this.rows);
@@ -934,6 +884,9 @@ app.factory('Vector', function() {
         },
         cross: function (b) {
             return Vector.cross(this, b);
+        },
+        distance: function (b) {
+            return Vector.distance(this, b);
         },
         towards: function (b, friction) {
             friction = friction || 0.125;

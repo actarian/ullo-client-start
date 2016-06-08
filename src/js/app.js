@@ -1,6 +1,6 @@
 ﻿/*global angular,FB */
 
-var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages']);
+var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages', 'relativeDate', 'ngFileUpload']);
 
 /*
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {

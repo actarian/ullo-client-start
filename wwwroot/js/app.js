@@ -1,6 +1,6 @@
 /*global angular,FB */
 
-var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages']);
+var app = angular.module('ullo', ['ngRoute', 'ngAnimate', 'ngMessages', 'relativeDate', 'ngFileUpload']);
 
 /*
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
@@ -46,7 +46,6 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     
 }]);
 */
-
 /*global angular,dynamics*/
 
 app.animation('.navigation', ['$rootScope', '$animate', function($rootScope, $animate) {
@@ -262,7 +261,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 
     });
 
-    $routeProvider.otherwise('/stream');
+    $routeProvider.otherwise('/splash'); // stream
 
     // HTML5 MODE url writing method (false: #/anchor/use, true: /html5/url/use)
     $locationProvider.html5Mode(true);
@@ -275,6 +274,69 @@ app.config(['$httpProvider', function ($httpProvider) {
     
 }]);
 
+app.run(['$rootScope', '$window', 'APP', function ($rootScope, $window, APP) {
+
+    $rootScope.standalone = $window.navigator.standalone;
+
+    document.ontouchmove = function (event) {
+        event.preventDefault();
+    }
+
+    window.oncontextmenu = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    };
+
+    function Picture(route, size) {
+        if (route.indexOf('http') === 0) {
+            return route;
+        } else if (size) {
+            return APP.API + route + '?media=' + size;
+        } else {
+            return APP.API + route;
+        }
+    }
+
+    $rootScope.getPictures = function (model, size) {
+        size;
+        var src = '/img/preview.png';
+        if (!model) {
+            return src;
+        }
+        if (model.pictures) {
+            for (var i = 0; i < model.pictures.length; i++) {
+                var media = model.pictures[i];
+                if (media.route) {
+                    src = Picture(media.route, size);
+                    i = 100000;
+                }
+            }
+        } else if (model.route) {
+            src = Picture(model.route, size);
+        }
+        return src;
+    };
+
+    $rootScope.getPicture = function (model, size) {
+        size;
+        var src = '/img/preview.png';
+        if (!model) {
+            return src;
+        }
+        if (model.picture && model.picture.route) {
+            src = Picture(model.picture.route, size);
+        } else if (model.route) {
+            src = Picture(model.route, size);
+        }
+        return src;
+    };
+
+    $rootScope.broadcast = function (event, params) {
+        $rootScope.$broadcast(event, params);
+    };
+
+}]);
 /*global angular,FB */
 
 app.controller('SignInTestCtrl', ['$scope', '$timeout', '$http', '$location', function ($scope, $timeout, $http, $location) {
@@ -541,6 +603,8 @@ app.controller('StreamCtrl', ['$scope', '$location', '$timeout', 'DataSource', '
 
     $scope.source.paging();
 
+    console.log('paging');
+
     $scope.onUploadFileSelected = function(file, newFiles) {
         if (!file) {
             return;
@@ -689,14 +753,180 @@ app.controller('DishTestCtrl', ['$scope', '$location', '$timeout', 'DataSource',
 
 /*global angular,FB,dynamics*/
 
-app.directive('backgroundSplash', ['$timeout', function ($timeout) {
+app.directive('backgroundSplash', [function () {
+    return {
+        link: function (scope, element, attributes, model) {
+            var aKey;
+            function draw(time) {                
+            }
+            function play() {
+                function loop(time) {
+                    draw(time);
+                    aKey = window.requestAnimationFrame(loop, element);
+                }
+                if (!aKey) {
+                    loop();
+                }
+            }
+            function pause() {
+                if (aKey) {
+                    window.cancelAnimationFrame(aKey);
+                    aKey = null;
+                    // console.log('Animation.paused');
+                }
+            }
+            function playpause() {
+                if (aKey) {
+                    pause();
+                } else {
+                    play();
+                }
+            }
+            function onDown(e) {
+                console.log('onDown');
+            }
+            function onMove(e) {
+                // console.log('onMove');
+            }
+            function addListeners() {
+                element.on('touchstart mousedown', onDown);
+                element.on('touchmove mousemove', onMove);
+            }
+            function removeListeners() {
+                element.off('touchstart mousedown', onDown);
+                element.off('touchmove mousemove', onMove);
+            }
+            scope.$on('$destroy', function () {
+                removeListeners();
+            });
+            addListeners();
+            play();
+        }
+    }
+}]);
+
+app.factory('Point', [function(){
+    function Point(x, y, radius) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+    }
+    Point.prototype = {
+        draw: function(ctx, degree, w, h, pow) {            
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);              
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, 4, 4);
+        },
+    }
+    return Point;
+}]);
+
+app.factory('Icon', [function(){
+    function Icon(x, y, radius, size) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+        this.size =     size || 64;
+        this.image = new Image();
+        this.loaded = false;            
+        this.init();        
+    }
+    Icon.prototype = {
+        init: function() {
+            var _this = this;
+            this.image.onload = function() {
+                _this.loaded = true;
+            }
+            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
+        },
+        draw: function(ctx, degree, w, h, pow) {
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);            
+            if (this.loaded) {
+                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            };
+        },
+    }
+    return Icon;
+}]);
+
+app.factory('Animate', [function(){
+    function Animate(callback) {
+        this.callback = callback;
+        this.key = null;        
+    }
+    Animate.prototype = {
+        play: function() {
+            var _this = this;
+            function loop(time) {
+                _this.callback(time);
+                _this.key = window.requestAnimationFrame(loop);
+            }
+            if (!this.key) {
+                loop();
+            }
+        },
+        pause: function() {
+            if (this.key) {
+                window.cancelAnimationFrame(this.key);
+                this.key = null;
+            }
+        },
+        playpause: function() {
+            if (this.key) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        }
+    }
+    return Animate;
+}]);
+
+app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', function (Utils, Animate, Point, Icon) {
     return {
         link: function (scope, element, attributes, model) {
             var canvas = element[0];
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             var ctx = canvas.getContext('2d');
+            /*
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.msImageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = false;
+            */
+            var maxItems = 18, pow = 0, speed = 1, ticks = 0;
 
+            var items = [];
+            while(items.length < maxItems) {
+                items.push(new Icon());
+            }
+
+            var animate = new Animate(function draw(time) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ticks += speed;
+
+                var d = ticks / 1000 % (Math.PI * 2);
+                pow += (0 - pow) / 12;
+
+                angular.forEach(items, function(item, i) {
+                    var g = Math.PI * 2 / items.length * i;
+                    item.draw(ctx, g + d, canvas.width, canvas.height, pow);                    
+                });
+                /*                
+                ctx.fillStyle = "white";
+                for(var i = 0; i < 50; i++) {
+                    var g = Math.PI * 2 / 50 * i;
+                    ctx.fillRect(canvas.width / 2 + 100 * Math.sin(g + d), canvas.height / 2 + 100 * Math.cos(g + d), 4, 4);
+                }
+                */
+            });
+            /*
             var aKey;
             function draw(time) {
                 var d = time / 1000 % (Math.PI * 2);
@@ -730,22 +960,32 @@ app.directive('backgroundSplash', ['$timeout', function ($timeout) {
                     play();
                 }
             }
-            
+            */
             function onDown(e) {
-                console.log('onDown');
-                playpause();
+                // console.log('onDown');
+                pow = 1;
+            }
+            function onMove(e) {
+                // console.log('onMove');
+                var point = Utils.getTouch(e);
+                var local = Utils.getRelativeTouch(element, point);
+                speed = (250 - local.distance({ x: canvas.width / 2, y: canvas.height / 2 })) / 5;
+                speed = Math.min(40, Math.max(10, speed));
+                // pow = 1;
             }
             function addListeners() {
                 element.on('touchstart mousedown', onDown);
+                element.on('touchmove mousemove', onMove);
             }
             function removeListeners() {
                 element.off('touchstart mousedown', onDown);
+                element.off('touchmove mousemove', onMove);
             }
             scope.$on('$destroy', function () {
                 removeListeners();
             });
             addListeners();
-            play();
+            animate.play();
         }
     }
 }]);
@@ -1223,7 +1463,7 @@ app.directive('ngImg', ['$parse', '$timeout', function ($parse, $timeout) {
 	</example>
 */
 app.directive('ngImgWorker', ['$parse', 'WebWorker', function ($parse, WebWorker) {
-    var worker = new WebWorker('/js/workers/loader.min.js');
+    var worker = new WebWorker('/js/workers/loader.js');
     return {
         restrict: 'A',
         link: function (scope, element, attributes, model) {
@@ -1812,6 +2052,98 @@ app.filter('customEnum', function () {
 
 /*global angular,FB */
 
+app.factory('Base', [function () {
+    function Base(data) {
+        data ? this.set(data) : null;
+    }
+    Base.prototype = {
+        set: function (data) {
+            angular.extend(this, data);
+            this.init();
+        },
+        init: function () {
+            console.log('Base.init');
+        },
+    };
+    Base.extend = function (constructor, prototype) {
+        // statics
+        angular.extend(constructor, this);
+        // prototypes
+        constructor.prototype = angular.extend(Object.create(this.prototype), prototype);
+        constructor.prototype.constructor = constructor;
+        return constructor;
+    };
+    Base.prototype.constructor = Base;
+    return Base;
+}]);
+
+app.factory('Collection', [function () {
+    function Collection() {
+        var collection = Object.create(Array.prototype);
+        collection = (Array.apply(collection, arguments) || collection);
+        this.constructor.inject(collection);
+        collection.init();
+        return (collection);
+    }
+    Collection.inject = function (collection) {
+        for (var method in this.prototype) {
+            // Make sure this is a local method.
+            if (this.prototype.hasOwnProperty(method)) {
+                collection[method] = this.prototype[method];
+            }
+        }
+        return (collection);
+    };
+    Collection.extend = function (prototype) {
+        var constructor = function () {
+            return Collection.apply(this, arguments);
+        }
+        // statics
+        angular.extend(constructor, this);
+        // prototypes
+        constructor.prototype = angular.extend({}, this.prototype, prototype);
+        constructor.prototype.constructor = constructor;
+        return constructor;
+    };
+    Collection.fromArray = function (array) {
+        var collection = Collection.apply(null, array);
+        return (collection);
+    };
+    Collection.isArray = function (value) {
+        var stringValue = Object.prototype.toString.call(value);
+        return (stringValue.toLowerCase() === "[object array]");
+    };
+    Collection.prototype = {
+        constructor: Collection,
+        init: function () {
+            // console.log('Collection.init', this);
+        },
+        add: function (value) {
+            if (Collection.isArray(value)) {
+                for (var i = 0 ; i < value.length ; i++) {
+                    // Add the sub-item using default push() method.
+                    Array.prototype.push.call(this, value[i]);
+                }
+            } else {
+                // Use the default push() method.
+                Array.prototype.push.call(this, value);
+            }
+            // Return this object reference for method chaining.
+            return (this);
+        },
+        addAll: function () {
+            // Loop over all the arguments to add them to the
+            // collection individually.
+            for (var i = 0 ; i < arguments.length ; i++) {
+                this.add(arguments[i]);
+            }
+            // Return this object reference for method chaining.
+            return (this);
+        }
+    };
+    return (Collection);
+}]);
+
 app.value('UserRoles', [{
     name: 'Guest', id: 1
 }, {
@@ -1863,16 +2195,166 @@ app.factory('User', ['UserRolesEnum', function (UserRolesEnum) {
     };
     return User;
 }]);
+
+app.factory('Post', ['$q', '$http', '$timeout', 'APP', 'User', 'Dish', 'Upload', function($q, $http, $timeout, APP, User, Dish, Upload) {
+	function Post(data) {
+        data ? angular.extend(this, data) : null;
+        this.user = new User(this.user);
+        this.dish = new Dish(this.dish);
+    }
+    Post.prototype = {
+		upload: function(file) {
+            console.log('Post.upload', this.id, file);
+            var self = this;
+            var name = file.name.substr(0, file.name.lastIndexOf('.'));
+            var extension = file.name.substr(file.name.lastIndexOf('.'));
+            console.log('onUpload', name, extension);
+            var uploadData = {
+                model: this,
+                id: this.id,
+                assetType: 1,
+                name: name,
+                extension: extension,
+                progress: 0,
+            };
+            this.uploads = this.uploads || [];
+            this.uploads.push(uploadData);
+            Upload.upload({
+                url: APP.API + 'api/assets/',
+                data: { file: file, uploadData: JSON.stringify(uploadData) }
+            }).then(function (response) {
+                console.log('Success ' + response.config.data.file.name + ' uploaded. Response: ' + response.data);
+                self.pictures = (self.pictures || []).concat(response.data);
+                uploadData.progress = 100;
+                $timeout(function () {
+                    var has = -1;
+                    angular.forEach(self.uploads, function (upload, i) {
+                        if (upload === uploadData) {
+                            has = i;
+                        }
+                    });
+                    if (has != -1) {
+                        self.uploads.splice(has, 1);
+                    }
+                }, 2000);
+            }, function (response) {
+                console.log('Error status: ' + response.status);
+                uploadData.progress = 0;
+            }, function (event) {
+                if (event.config.data.file) {
+                    var progressPercentage = Math.round(100.0 * event.loaded / event.total);
+                    uploadData.progress = progressPercentage;
+                    console.log('progress: ' + progressPercentage + '% ' + event.config.data.file.name);
+                }
+            });
+		},
+		voteCount: function() {
+			return this.yes + this.no;
+		},
+		rating: function() {
+			var count = this.voteCount();
+			return count > 0 ? this.yes / count : 0;
+		},
+        ratingToString: function() {
+			var rating = this.rating();
+			return rating > 0 ? Math.round( rating * 100 ) / 10 : '0.0';
+		},
+    };
+    return Post;
+}]);
+
+app.factory('Dish', ['$q', '$http', '$timeout', 'APP', 'User', 'Upload', function($q, $http, $timeout, APP, User, Upload) {
+	function Dish(data) {
+        this.extend(data);
+    }
+    Dish.prototype = {
+        extend: function(data) {
+            data ? angular.extend(this, data) : null;
+            this.user = new User(this.user);
+            if (this.votes) {
+                angular.forEach(this.votes, function(vote) {
+                    vote.user = new User(vote.user);
+                });
+            }
+        },
+		like: function(like) {
+            var self = this;
+            var deferred = $q.defer();
+            $http.post(APP.API + '/api/dishes/vote', { dishId: this.id, like: like }).then(function success(response) {
+                self.extend(response.data);
+                deferred.resolve(response);
+            }, function error(response) {
+                deferred.reject(response);
+            });
+            return deferred.promise;
+		},
+		upload: function(file) {
+            console.log('Dish.upload', this.id, file);
+            var self = this;
+            var name = file.name.substr(0, file.name.lastIndexOf('.'));
+            var extension = file.name.substr(file.name.lastIndexOf('.'));
+            console.log('onUpload', name, extension);
+            var uploadData = {
+                model: this,
+                id: this.id,
+                assetType: 1,
+                name: name,
+                extension: extension,
+                progress: 0,
+            };
+            this.uploads = this.uploads || [];
+            this.uploads.push(uploadData);
+            Upload.upload({
+                url: APP.API + 'api/assets/',
+                data: { file: file, uploadData: JSON.stringify(uploadData) }
+            }).then(function success(response) {
+                console.log('Success ' + response.config.data.file.name + ' uploaded. Response: ' + response.data);
+                self.pictures = (self.pictures || []).concat(response.data);
+                uploadData.progress = 100;
+                $timeout(function () {
+                    var has = -1;
+                    angular.forEach(self.uploads, function (upload, i) {
+                        if (upload === uploadData) {
+                            has = i;
+                        }
+                    });
+                    if (has != -1) {
+                        self.uploads.splice(has, 1);
+                    }
+                }, 2000);
+            }, function error(response) {
+                console.log('Error status: ' + response.status);
+                uploadData.progress = 0;
+            }, function progress(event) {
+                if (event.config.data.file) {
+                    var progressPercentage = Math.round(100.0 * event.loaded / event.total);
+                    uploadData.progress = progressPercentage;
+                    console.log('progress: ' + progressPercentage + '% ' + event.config.data.file.name);
+                }
+            });
+		},
+		voteCount: function() {
+			return this.yes + this.no;
+		},
+		rating: function() {
+			var count = this.voteCount();
+			return count > 0 ? this.yes / count : 0;
+		},
+        ratingToString: function() {
+			var rating = this.rating();
+			return rating > 0 ? Math.round( rating * 100 ) / 10 : '0.0';
+		},
+    };
+    return Dish;
+}]);
+
 /*global angular,FB */
 
 /*global angular,FB */
 
 app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
-
     function FacebookService() {
-
     }
-
     FacebookService.FB = function () {
         var deferred = $q.defer();
         if (window['FB'] !== undefined) {
@@ -1885,8 +2367,7 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
             })
         }
         return deferred.promise;
-    }
-
+    };
     FacebookService.getFacebookMe = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1900,7 +2381,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.getPictureMe = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1914,7 +2394,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.getLoginStatus = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1924,7 +2403,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.login = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1936,7 +2414,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.logout = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1946,7 +2423,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.deletePermissions = function () {
         var deferred = $q.defer();
 		FacebookService.FB().then(function (facebook) {
@@ -1956,7 +2432,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         });
         return deferred.promise;
     };
-
     FacebookService.init = function () {
         var deferred = $q.defer();
         window.fbAsyncInit = function () {
@@ -1982,7 +2457,6 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
         }
         return deferred.promise;
     };
-
     function onFacebookStatus(response, deferred) {
         FacebookService.authResponse = null;
         if (response.status === 'connected') {
@@ -1994,27 +2468,21 @@ app.factory('FacebookService', ['$q', 'APP', function ($q, APP) {
             deferred.reject(response);
         }
     };
-
     return FacebookService;
-
 }]);
 
 app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStorage', 'User', function ($q, $http, $location, $timeout, APP, LocalStorage, User) {
-
     // PRIVATE VARIABLE FOR CURRENT USER
     var _currentUser = null;
-
     function Users() {
     }
-
+    // INSTANCE METHODS
     Users.prototype = {
     };
-
     // STATIC CLASS METHODS
     Users.currentUser = function () {
         return _currentUser;
     };
-
     Users.getCurrentUser = function () {
         var deferred = $q.defer();
         if (_currentUser) {
@@ -2033,7 +2501,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         }
         return deferred.promise;
     };
-
     Users.isLogged = function () {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -2045,7 +2512,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isAdmin = function () {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -2055,7 +2521,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isLoggedOrGoTo = function(redirect) {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -2073,7 +2538,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         })
         return deferred.promise;
     };
-
     Users.isAdminOrGoTo = function(redirect) {
         var deferred = $q.defer();
         Users.getCurrentUser().then(function (user) {
@@ -2090,8 +2554,7 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
             $location.path(redirect);
         })
         return deferred.promise;
-    },
-
+    };
     /** LOGIN METHODS **/
     Users.signup = function (model) {
         var deferred = $q.defer();
@@ -2103,7 +2566,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signin = function (model) {
         var deferred = $q.defer();
         $http.post(APP.API + '/api/users/signin/', model).then(function success(response) {
@@ -2114,7 +2576,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signInWithFacebook = function (auth) {
         var deferred = $q.defer();
         $http.post(APP.API + '/api/users/signinwithfacebook/', auth).then(function success(response) {
@@ -2125,7 +2586,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.signout = function () {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/users/signout/').then(function success(response) {
@@ -2136,7 +2596,6 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     Users.detail = function (userRoute) {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/users/route/' + userRoute).then(function success(response) {
@@ -2146,15 +2605,12 @@ app.factory('Users', ['$q', '$http', '$location', '$timeout', 'APP', 'LocalStora
         });
         return deferred.promise;
     };
-
     return Users;
 }]);
 
 app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
-
     function Categories() {
     }
-
     Categories.get = function () {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/categories/').then(function success(response) {
@@ -2164,7 +2620,6 @@ app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
         });
         return deferred.promise;
     };
-
     Categories.detail = function (categoryId) {
         var deferred = $q.defer();
         $http.get(APP.API + '/api/categories/' + categoryId).then(function success(response) {
@@ -2174,14 +2629,79 @@ app.factory('Categories', ['$http', '$q', 'APP', function ($http, $q, APP) {
         });
         return deferred.promise;
     };
-
     return Categories;
 }]);
 
+app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
+    function Posts() {
+    }
+    Posts.uri = {
+        paging: APP.API + '/api/stream/paged',
+    };
+    Posts.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Post(item));
+        }, rows);
+    };
+    Posts.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/post/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    return Posts;
+}]);
+
+app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
+    function Dishes() {
+    }
+    Dishes.uri = {
+        paging: APP.API + '/api/dishes/paged',
+    };
+    Dishes.resolve = function (items, rows) {
+        angular.forEach(items, function (item) {
+            this.push(new Dish(item));
+        }, rows);
+    };
+    Dishes.detail = function (id) {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
+            deferred.resolve(new Dish(response.data));
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    Dishes.add = function (model) {
+        var deferred = $q.defer();
+        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
+            deferred.resolve(response.data);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    Dishes.get = function () {
+        var deferred = $q.defer();
+        $http.get(APP.API + '/api/dishes/').then(function success(response) {
+            var rows = [];
+            angular.forEach(response.data, function (item) {
+                this.push(new Dish(item));
+            }, rows);
+            deferred.resolve(rows);
+        }, function error(response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+    return Dishes;
+}]);
+
 app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
-
     var uniqueId = 100;
-
     function getRandomItems() {
         var items = [];
         while (items.length < 10) {
@@ -2202,7 +2722,6 @@ app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
         }
         return items;
     }
-
     function TestSource() {
     }
     TestSource.uri = {
@@ -2214,93 +2733,13 @@ app.factory('DishesTest', ['APP', 'Dish', function (APP, Dish) {
             this.push(new Dish(item));
         }, rows);
     };
-
     return TestSource;
 }]);
 
-app.factory('Posts', ['$http', '$q', 'APP', 'Post', function ($http, $q, APP, Post) {
-
-    function Posts() {
-    }
-    Posts.uri = {
-        paging: APP.API + '/api/stream/paged',
-    };
-    Posts.resolve = function (items, rows) {
-        angular.forEach(items, function (item) {
-            this.push(new Post(item));
-        }, rows);
-    };
-
-    Posts.add = function (model) {
-        var deferred = $q.defer();
-        $http.post(APP.API + '/api/post/', model).then(function success(response) {
-            deferred.resolve(response.data);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    return Posts;
-}]);
-
-app.factory('Dishes', ['$http', '$q', 'APP', 'Dish', function ($http, $q, APP, Dish) {
-
-    function Dishes() {
-    }
-    Dishes.uri = {
-        paging: APP.API + '/api/dishes/paged',
-    };
-    Dishes.resolve = function (items, rows) {
-        angular.forEach(items, function (item) {
-            this.push(new Dish(item));
-        }, rows);
-    };
-
-    Dishes.detail = function (id) {
-        var deferred = $q.defer();
-        $http.get(APP.API + '/api/dishes/' + id).then(function success(response) {
-            deferred.resolve(new Dish(response.data));
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    Dishes.add = function (model) {
-        var deferred = $q.defer();
-        $http.post(APP.API + '/api/dishes/', model).then(function success(response) {
-            deferred.resolve(response.data);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    Dishes.get = function () {
-        var deferred = $q.defer();
-        $http.get(APP.API + '/api/dishes/').then(function success(response) {
-            var rows = [];
-            angular.forEach(response.data, function (item) {
-                this.push(new Dish(item));
-            }, rows);
-            deferred.resolve(rows);
-        }, function error(response) {
-            deferred.reject(response);
-        });
-        return deferred.promise;
-    };
-
-    return Dishes;
-}]);
-
 app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($q, $http, $timeout, APP) {
-
     var MAX_ITEMS = 5;
-
     function DishesAutocomplete() {
     }
-
     DishesAutocomplete.prototype = {
         setPhrase: function (phrase) {
             // console.log('DishesAutocomplete.setPhrase', phrase);
@@ -2341,9 +2780,7 @@ app.factory('DishesAutocomplete', ['$q', '$http', '$timeout', 'APP', function ($
             return deferred.promise;
         },
     };
-
     return DishesAutocomplete;
-
 }]);
 
 app.factory('DataFilter', [function () {
@@ -2390,9 +2827,7 @@ app.factory('DataFilter', [function () {
 }]);
 
 app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope', 'DataFilter', function ($q, $http, $httpAsync, $timeout, $rootScope, DataFilter) {
-
     var PAGES_MAX = Number.POSITIVE_INFINITY;
-
     function DataSource(data) {
         this.busy = false;
         this.error = false;
@@ -2458,7 +2893,7 @@ app.factory('DataSource', ['$q', '$http', '$httpAsync', '$timeout', '$rootScope'
         get: function (deferred, infinite) {
             this.busy = true;
             this.error = false;
-            $httpAsync.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) {
+            $http.get(this.service.uri.paging, { params: this.filters.getParams(this) }).then(function success(response) { // $httpAsync
                 this.resolve(response);
                 infinite ? null : this.rows.length = 0;
                 this.service.resolve(response.data, this.rows);
@@ -2802,6 +3237,9 @@ app.factory('Vector', function() {
         cross: function (b) {
             return Vector.cross(this, b);
         },
+        distance: function (b) {
+            return Vector.distance(this, b);
+        },
         towards: function (b, friction) {
             friction = friction || 0.125;
             this.x += (b.x - this.x) * friction;
@@ -3094,7 +3532,7 @@ app.factory('$httpAsync', ['$q', '$http', function ($q, $http) {
     if (!isWebWorkerSupported) {
         return $http;
     }
-    var worker = new Worker('/js/workers/http.min.js');
+    var worker = new Worker('/js/workers/http.js');
     var callbacks = {};
     var id = 0;
     var lowercase = function (string) { return isString(string) ? string.toLowerCase() : string; };
