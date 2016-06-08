@@ -59,7 +59,7 @@ app.factory('Point', [function(){
         this.radius =   radius || 100;
     }
     Point.prototype = {
-        draw: function(ctx, degree, w, h, pow) {            
+        draw: function(ctx, degree, w, h, pow, mouse) {            
             var radius = this.radius * (1 + pow);
             this.x = w / 2 + radius * Math.sin(degree);
             this.y = h / 2 + radius * Math.cos(degree);              
@@ -76,8 +76,10 @@ app.factory('Icon', [function(){
         this.y =        y || 0;
         this.radius =   radius || 100;
         this.size =     size || 64;
-        this.image = new Image();
-        this.loaded = false;            
+        this.forcex =   0;
+        this.forcey =   0;
+        this.image =    new Image();
+        this.loaded =   false;            
         this.init();        
     }
     Icon.prototype = {
@@ -88,10 +90,32 @@ app.factory('Icon', [function(){
             }
             this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
         },
-        draw: function(ctx, degree, w, h, pow) {
+        repel: function (x, y, mouse) {
+            if (!mouse) {
+                this.x = x;
+                this.y = y;
+                return;
+            }
+            var magnet = 400;
+            var distance = mouse.distance(this);
+            var distancex = mouse.x - this.x;
+            var distancey = mouse.y - this.y;
+            var powerx = x - (distancex / distance) * magnet / distance;
+            var powery = y - (distancey / distance) * magnet / distance;            
+            this.forcex = (this.forcex + (this.x - x) / 2) / 2.1;
+            this.forcey = (this.forcey + (this.y - y) / 2) / 2.1;
+            this.x = powerx + this.forcex;
+            this.y = powery + this.forcey;
+        },
+        draw: function(ctx, degree, w, h, pow, mouse) {
             var radius = this.radius * (1 + pow);
-            this.x = w / 2 + radius * Math.sin(degree);
-            this.y = h / 2 + radius * Math.cos(degree);            
+            var x = w / 2 + radius * Math.sin(degree);
+            var y = h / 2 + radius * Math.cos(degree);
+            this.repel(x, y, mouse);
+            /*
+            this.x = x;
+            this.y = y;
+            */
             if (this.loaded) {
                 ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
             };
@@ -146,7 +170,7 @@ app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', func
             ctx.msImageSmoothingEnabled = false;
             ctx.imageSmoothingEnabled = false;
             */
-            var maxItems = 18, pow = 0, speed = 1, ticks = 0;
+            var maxItems = 18, pow = 0, speed = 1, ticks = 0, mouse = null;
 
             var items = [];
             while(items.length < maxItems) {
@@ -163,7 +187,7 @@ app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', func
 
                 angular.forEach(items, function(item, i) {
                     var g = Math.PI * 2 / items.length * i;
-                    item.draw(ctx, g + d, canvas.width, canvas.height, pow);                    
+                    item.draw(ctx, g + d, canvas.width, canvas.height, pow, mouse);                    
                 });
                 /*                
                 ctx.fillStyle = "white";
@@ -218,6 +242,7 @@ app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', func
                 var local = Utils.getRelativeTouch(element, point);
                 speed = (250 - local.distance({ x: canvas.width / 2, y: canvas.height / 2 })) / 5;
                 speed = Math.min(40, Math.max(10, speed));
+                mouse = local;
                 // pow = 1;
             }
             function addListeners() {
