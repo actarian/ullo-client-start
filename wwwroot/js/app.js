@@ -2085,8 +2085,7 @@ app.factory('Point', ['Base', function(Base){
     return Point;
 }]);
 
-app.factory('Icon', ['Point', function(Point) {
-    
+app.factory('Icon', ['Point', function(Point) {    
     var Icon = Point.extend({
         constructor: function Icon(x, y, radius, size) {
             this.$ctor(x, y); // qui chiamo il constructor della classe Point
@@ -2189,7 +2188,7 @@ app.factory('Icon', ['Point', function(Point) {
     return Icon;
 }]);
 
-app.factory('Animate', [function(){
+app.factory('Animate', [function() {
     function Animate(callback) {
         this.callback = callback;
         this.key = null;
