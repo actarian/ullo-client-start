@@ -16,30 +16,32 @@ app.constant('APP', CONFIG);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
 
+    // TEST ROUTING
+    $routeProvider.when('/signin-test', {
+        title: 'Sign In',
+        templateUrl: 'templates/tests/signin.html',
+        controller: 'SignInTestCtrl',
+        controllerAs: 'signinCtrl',
+
+    }).when('/stream-test', {
+        title: 'Stream Test',
+        templateUrl: 'templates/tests/stream.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'streamTestCtrl',
+
+    }).when('/stream-test-2', {
+        title: 'Stream Test 2',
+        templateUrl: 'templates/tests/stream-2.html',
+        controller: 'StreamTestCtrl',
+        controllerAs: 'streamTestCtrl',
+
     // UNSECURE ROUTING
-    $routeProvider.when('/splash', {
+    }).when('/splash', {
         title: 'Splash',
         templateUrl: 'templates/splash.html',
         controller: 'SplashCtrl',
         controllerAs: 'splashCtrl',
 
-    }).when('/test', {
-        title: 'Test',
-        templateUrl: 'templates/test.html',
-        controller: 'StreamTestCtrl',
-        controllerAs: 'testCtrl',
-
-    }).when('/stream-test', {
-        title: 'Stream Test',
-        templateUrl: 'templates/test.html',
-        controller: 'StreamTestCtrl',
-        controllerAs: 'testCtrl',
-
-    }).when('/signin-test', {
-        title: 'Sign In',
-        templateUrl: 'templates/signin-test.html',
-        controller: 'SignInTestCtrl',
-        controllerAs: 'signinCtrl',
     }).when('/signin', {
         title: 'Sign In',
         templateUrl: 'templates/signin.html',

@@ -1,24 +1,33 @@
 /*global angular,FB */
 
 app.factory('Base', [function () {
-    function Base(data) {
-        data ? this.set(data) : null;
+    function Base() {        
     }
     Base.prototype = {
-        set: function (data) {
-            angular.extend(this, data);
-            this.init();
-        },
-        init: function () {
-            console.log('Base.init');
-        },
+        $$super: null,
+        $super: {},
+        $ctor: function () {
+            this.$$super.apply(this, [].splice.call(arguments, 0));
+        },        
     };
-    Base.extend = function (constructor, prototype) {
+    Base.extend = function (data) {
+        if (!data || !data.constructor) {
+            throw('Base.extend.error: please pass an object with constructor eg. { constructor: function myFunc() {...} }');
+        }
+        var constructor = data.constructor;
+        var methods = data.methods || {};
         // statics
         angular.extend(constructor, this);
         // prototypes
-        constructor.prototype = angular.extend(Object.create(this.prototype), prototype);
+        constructor.prototype = angular.extend(Object.create(this.prototype), methods);
         constructor.prototype.constructor = constructor;
+        constructor.prototype.$$super = this;
+        constructor.prototype.$super = {};
+        angular.forEach(this.prototype, function(value, key) {
+            constructor.prototype.$super[key] = function(scope) {
+                value.apply(scope, [].splice.call(arguments, 1));
+            };
+        });
         return constructor;
     };
     Base.prototype.constructor = Base;
@@ -90,6 +99,185 @@ app.factory('Collection', [function () {
         }
     };
     return (Collection);
+}]);
+
+app.factory('Point', ['Base', function(Base){
+    var Point = Base.extend({
+        constructor: function Point(x, y, radius) {
+            this.x          = x || 0;
+            this.y          = y || 0;
+            this.radius     = radius || 100;        
+        }, 
+        methods: {
+            move: function (degree, w, h, pow) {   
+                var radius = this.radius * (1 + pow);
+                this.x = w / 2 + radius * Math.sin(degree);
+                this.y = h / 2 + radius * Math.cos(degree);
+            },            
+            draw: function(ctx) {   
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.x, this.y, 4, 4);
+            },
+        }
+    });
+    /*
+    function Point(x, y, radius) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+    }
+    Point.prototype = {
+        move = function(degree, w, h, pow) {
+            var radius = this.radius * (1 + pow);
+            this.x = w / 2 + radius * Math.sin(degree);
+            this.y = h / 2 + radius * Math.cos(degree);
+        },
+        draw: function(ctx) {            
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.x, this.y, 4, 4);
+        },
+    }
+    */
+    return Point;
+}]);
+
+app.factory('Icon', ['Point', function(Point) {
+    
+    var Icon = Point.extend({
+        constructor: function Icon(x, y, radius, size) {
+            this.$ctor(x, y); // qui chiamo il constructor della classe Point
+            this.size           = size || 64;
+            this.forcex         = 0;
+            this.forcey         = 0;
+            this.prevx          = 0;
+            this.prevy          = 0;
+            this.image          = new Image();                
+            this.loadIcon();        
+        }, 
+        methods: {
+            loadIcon: function() {
+                var _this = this;
+                this.image.onload = function() {
+                    _this.image.loaded = true;
+                }
+                this.image.loaded = false;
+                this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
+            },
+            repel: function (x, y, mouse) {
+                if (!mouse) {
+                    return;
+                }
+                var magnet = 400;
+                var distance = mouse.distance({ x: this.prevx, y: this.prevy });
+                var distancex = mouse.x - this.prevx;
+                var distancey = mouse.y - this.prevy;
+                var powerx = x - (distancex / distance) * magnet / distance;
+                var powery = y - (distancey / distance) * magnet / distance;            
+                this.forcex = (this.forcex + (this.prevx - x) / 2) / 2.1;
+                this.forcey = (this.forcey + (this.prevy - y) / 2) / 2.1;
+                this.x = powerx + this.forcex;
+                this.y = powery + this.forcey;
+            },
+            move: function (degree, w, h, pow, mouse) {   
+                this.$super.move(this, degree, w, h, pow); // qui chiamo il metodo "move" della classe Point
+                this.repel(this.x, this.y, mouse);
+            },   
+            draw: function(ctx, degree, w, h, pow, mouse) {
+                // this.$super.draw(this, ctx); // qui chiamo il metodo "draw" della classe Point                
+                if (this.image.loaded) {
+                    ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+                };
+                this.prevx = this.x;
+                this.prevy = this.y;
+            },
+        }
+    });
+    /*
+    function Icon(x, y, radius, size) {
+        this.x =        x || 0;
+        this.y =        y || 0;
+        this.radius =   radius || 100;
+        this.size =     size || 64;
+        this.forcex =   0;
+        this.forcey =   0;
+        this.image =    new Image();
+        this.loaded =   false;            
+        this.init();        
+    }    
+    Icon.prototype = {
+        init: function() {
+            var _this = this;
+            this.image.onload = function() {
+                _this.loaded = true;
+            }
+            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
+        },
+        repel: function (x, y, mouse) {
+            if (!mouse) {
+                this.x = x;
+                this.y = y;
+                return;
+            }
+            var magnet = 400;
+            var distance = mouse.distance(this);
+            var distancex = mouse.x - this.x;
+            var distancey = mouse.y - this.y;
+            var powerx = x - (distancex / distance) * magnet / distance;
+            var powery = y - (distancey / distance) * magnet / distance;            
+            this.forcex = (this.forcex + (this.x - x) / 2) / 2.1;
+            this.forcey = (this.forcey + (this.y - y) / 2) / 2.1;
+            this.x = powerx + this.forcex;
+            this.y = powery + this.forcey;
+        },
+        move: function(degree, w, h, pow, mouse) {
+            var radius = this.radius * (1 + pow);
+            var x = w / 2 + radius * Math.sin(degree);
+            var y = h / 2 + radius * Math.cos(degree);
+            this.repel(x, y, mouse);            
+        },
+        draw: function(ctx) {
+            if (this.loaded) {
+                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            };
+        },
+    }
+    */
+    return Icon;
+}]);
+
+app.factory('Animate', [function(){
+    function Animate(callback) {
+        this.callback = callback;
+        this.key = null;
+        this.ticks = 0;        
+    }
+    Animate.prototype = {
+        play: function() {
+            var _this = this;
+            function loop(time) {
+                _this.ticks ++;
+                _this.callback(time, _this.ticks);
+                _this.key = window.requestAnimationFrame(loop);
+            }
+            if (!this.key) {
+                loop();
+            }
+        },
+        pause: function() {
+            if (this.key) {
+                window.cancelAnimationFrame(this.key);
+                this.key = null;
+            }
+        },
+        playpause: function() {
+            if (this.key) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        }
+    }
+    return Animate;
 }]);
 
 app.value('UserRoles', [{

@@ -1,0 +1,36 @@
+<div class="inner"><!-- splash -->
+    <section class="vertical brand">
+        <div class="inner">
+            <div class="logo sm"><img src="/img/logo_ullo_1.png" class="bounce infinite animated" /></div>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-headline h5">
+                        <div class="left">
+                            <b class="text-strong" ng-bind="model.label" ng-click="loadStream()"></b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-headline h5">
+                        <div class="left">
+                            <img ng-src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
+                            <br><b class="text-strong" ng-bind="item.dish.name"></b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" ng-repeat="oggetto in items track by $index">
+                <div class="card-content">
+                    <div class="card-headline h5">
+                        <div class="left">
+                            <img ng-src="http://ulloapi.wslabs.it/{{item.picture.route}}?media=xs" />
+                            <br><b class="text-strong" ng-bind="item.dish.name"></b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

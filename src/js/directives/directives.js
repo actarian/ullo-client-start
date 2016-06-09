@@ -1,141 +1,5 @@
 /*global angular,FB,dynamics*/
 
-
-app.factory('Animate', [function(){
-    function Animate(callback) {
-        this.callback = callback;
-        this.key = null;        
-    }
-    Animate.prototype = {
-        play: function() {
-            var _this = this;
-            function loop(time) {
-                _this.callback(time);
-                _this.key = window.requestAnimationFrame(loop);
-            }
-            if (!this.key) {
-                loop();
-            }
-        },
-        pause: function() {
-            if (this.key) {
-                window.cancelAnimationFrame(this.key);
-                this.key = null;
-            }
-        },
-        playpause: function() {
-            if (this.key) {
-                this.pause();
-            } else {
-                this.play();
-            }
-        }
-    }
-    return Animate;
-}]);
-
-app.factory('Point', ['Base', function(Base){
-    var Point = Base.extend(function Point(x, y, radius) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-    }, {
-        draw: function(ctx, degree, w, h, pow, mouse) {            
-            var radius = this.radius * (1 + pow);
-            this.x = w / 2 + radius * Math.sin(degree);
-            this.y = h / 2 + radius * Math.cos(degree);              
-            ctx.fillStyle = "white";
-            ctx.fillRect(this.x, this.y, 4, 4);
-        },
-    });
-    /*
-    function Point(x, y, radius) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-    }
-    Point.prototype = {
-        draw: function(ctx, degree, w, h, pow, mouse) {            
-            var radius = this.radius * (1 + pow);
-            this.x = w / 2 + radius * Math.sin(degree);
-            this.y = h / 2 + radius * Math.cos(degree);              
-            ctx.fillStyle = "white";
-            ctx.fillRect(this.x, this.y, 4, 4);
-        },
-    }
-    */
-    return Point;
-}]);
-
-app.factory('Icon', ['Point', function(Point){
-    /*
-    var Icon = Point.extend(function Icon(x, y, radius, size) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-        this.size =     size || 64;
-        this.forcex =   0;
-        this.forcey =   0;
-        this.image =    new Image();
-        this.loaded =   false;            
-        this.init();        
-    }, {
-        draw: function() {
-            console.log(this.constructor);
-        },
-    });
-    console.log(Icon.prototype);
-    */
-    function Icon(x, y, radius, size) {
-        this.x =        x || 0;
-        this.y =        y || 0;
-        this.radius =   radius || 100;
-        this.size =     size || 64;
-        this.forcex =   0;
-        this.forcey =   0;
-        this.image =    new Image();
-        this.loaded =   false;            
-        this.init();        
-    }
-    
-    Icon.prototype = {
-        init: function() {
-            var _this = this;
-            this.image.onload = function() {
-                _this.loaded = true;
-            }
-            this.image.src = 'img/food-' + Math.floor(Math.random() * 15) + '.png';
-        },
-        repel: function (x, y, mouse) {
-            if (!mouse) {
-                this.x = x;
-                this.y = y;
-                return;
-            }
-            var magnet = 400;
-            var distance = mouse.distance(this);
-            var distancex = mouse.x - this.x;
-            var distancey = mouse.y - this.y;
-            var powerx = x - (distancex / distance) * magnet / distance;
-            var powery = y - (distancey / distance) * magnet / distance;            
-            this.forcex = (this.forcex + (this.x - x) / 2) / 2.1;
-            this.forcey = (this.forcey + (this.y - y) / 2) / 2.1;
-            this.x = powerx + this.forcex;
-            this.y = powery + this.forcey;
-        },
-        draw: function(ctx, degree, w, h, pow, mouse) {
-            var radius = this.radius * (1 + pow);
-            var x = w / 2 + radius * Math.sin(degree);
-            var y = h / 2 + radius * Math.cos(degree);
-            this.repel(x, y, mouse);
-            if (this.loaded) {
-                ctx.drawImage(this.image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
-            };
-        },
-    }
-    return Icon;
-}]);
-
 app.directive('backgroundSplash', ['Animate', 'Point', 'Icon', 'Utils', function (Animate, Point, Icon, Utils) {
     return {
         link: function (scope, element, attributes, model) {
@@ -159,12 +23,14 @@ app.directive('backgroundSplash', ['Animate', 'Point', 'Icon', 'Utils', function
 
                 angular.forEach(items, function(item, i) {
                     var g = Math.PI * 2 / items.length * i;
-                    item.draw(ctx, g + d, canvas.width, canvas.height, pow, mouse);                    
+                    item.move(g + d, canvas.width, canvas.height, pow, mouse);
+                    item.draw(ctx);                    
                 });
                 /*
                 angular.forEach(items, function(item, i) {
                     var d = Math.PI * 2 / items.length * i + time / 1000;
-                    item.draw(ctx, d, canvas.width, canvas.height, pow);
+                    item.move(d, canvas.width, canvas.height, pow);
+                    item.draw(ctx);
                 });
                 */
             });
@@ -229,7 +95,8 @@ app.directive('backgroundSplashFull', ['Utils', 'Animate', 'Point', 'Icon', func
 
                 angular.forEach(items, function(item, i) {
                     var g = Math.PI * 2 / items.length * i;
-                    item.draw(ctx, g + d, canvas.width, canvas.height, pow, mouse);                    
+                    item.move(g + d, canvas.width, canvas.height, pow, mouse);
+                    item.draw(ctx);                 
                 });
                 /*                
                 ctx.fillStyle = "white";
